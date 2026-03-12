@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Layout from './Components/Layout/Layout'
+import Home from './Components/Home/Home'
+import Brands from './Components/Brands/Brands'
+import Cart from './Components/Cart/Cart'
+import Categories from './Components/Categories/Categories'
+import Login from './Components/Login/Login'
+import NotFound from './Components/NotFound/NotFound'
+import Products from './Components/Products/Products'
+import Register from './Components/Register/Register'
 
-function App() {
-  const [count, setCount] = useState(0)
+const myRouter = createBrowserRouter( [
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+{path: '/', element: <Layout />, children: [
+  {index: true, element: <Home />},
+  {path: 'home', element: <Home />},
+  {path: 'brands', element: <Brands />},
+  {path: 'cart', element: <Cart />},
+  {path: 'categories', element: <Categories />},
+  {path: 'login', element: <Login />},
+  {path: 'products', element: <Products />},
+  {path: 'register', element: <Register />},
+  {path: '*', element: <NotFound />},
+] },
+] )
+
+export default function App() {
+  return <>
+  <RouterProvider router={myRouter} />
+  </>
 }
-
-export default App
