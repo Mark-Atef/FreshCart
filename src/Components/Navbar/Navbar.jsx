@@ -1,5 +1,6 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+/** biome-ignore-all lint/complexity/noUselessFragments: React fragments required for layout wrapper */
+/** biome-ignore-all assist/source/organizeImports: <> */
+import { Link } from 'react-router-dom' 
 import styles from './Navbar.module.css'
 import logo from '../../assets/images/freshcart-logo.svg'
 
@@ -18,12 +19,12 @@ export default function Navbar() {
         </ul>
 
         <ul className={styles.navIcons}>
-          <li><i className="fab fa-instagram"></i></li>
-          <li><i className="fab fa-facebook-f"></i></li>
-          <li><i className="fab fa-tiktok"></i></li>
-          <li><i className="fab fa-twitter"></i></li>
-          <li><i className="fab fa-linkedin-in"></i></li>
-          <li><i className="fab fa-youtube"></i></li>
+          <li><a href="https://www.instagram.com" target="_blank" rel="noreferrer"><i className="fab fa-instagram"></i></a></li>
+          <li><a href="https://www.facebook.com" target="_blank" rel="noreferrer"><i className="fab fa-facebook-f"></i></a></li>
+          <li><a href="https://www.tiktok.com" target="_blank" rel="noreferrer"><i className="fab fa-tiktok"></i></a></li>
+          <li><a href="https://www.twitter.com" target="_blank" rel="noreferrer"><i className="fab fa-twitter"></i></a></li>
+          <li><a href="https://www.linkedin.com" target="_blank" rel="noreferrer"><i className="fab fa-linkedin-in"></i></a></li>
+          <li><a href="https://www.youtube.com" target="_blank" rel="noreferrer"><i className="fab fa-youtube"></i></a></li>
         </ul>
 
 

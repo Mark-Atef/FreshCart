@@ -1,0 +1,287 @@
+/* ============================================
+   Register Page
+============================================ */
+
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: #f7f9f7;
+  margin-top: 40px;
+}
+
+/* ── Card wrapper ── */
+.card {
+  display: flex;
+  width: 90%;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================
+     Left decorative panel
+  ============================================ */
+.panel {
+  position: relative;
+  width: 38%;
+  background: linear-gradient(145deg, #2e7d32, #4caf50, #81c784);
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.panelContent {
+  position: relative;
+  z-index: 2;
+  color: white;
+}
+
+.panelIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.panelTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+}
+
+.panelText {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.panelList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  opacity: 0.9;
+}
+
+.panelList li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+
+/* ============================================
+     Right form side
+  ============================================ */
+.formSide {
+  flex: 1;
+  background: #ffffff;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #888;
+  margin-bottom: 2rem;
+}
+
+/* ── Form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ── Field ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #444;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+/* ── Input wrapper ── */
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.85rem;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 0.85rem 0.75rem 2.4rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  background: #fafafa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  outline: none;
+}
+
+.input::placeholder {
+  color: #bbb;
+}
+
+.input:focus {
+  border-color: #4caf50;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+}
+
+/* ── Error message ── */
+.field:has(.errorMessage) .input {
+  border-color: #c62828;
+  background: #fffbfb;
+}
+
+.field:has(.errorMessage) .input:focus {
+  border-color: #c62828;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
+}
+
+/* Error message */
+.errorMessage {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #c62828;
+  background: #ffebee;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  animation: errorFadeIn 0.2s ease;
+}
+
+@keyframes errorFadeIn {
+  0% { opacity: 0; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Submit button ── */
+.btn {
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, #2e7d32, #4caf50);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.35);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.45);
+}
+
+.btn:active {
+  transform: translateY(0px);
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ── Bottom login link ── */
+.loginText {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.loginLink {
+  color: #4caf50;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.loginLink:hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+
+/* ============================================
+     Responsive
+  ============================================ */
+
+@media all and (max-width: 575px) {
+  .section {
+    margin-top: 100px;
+  }
+
+  /* ============================================
+     Left decorative panel
+  ============================================ */
+  .panel {
+    text-align: center;
+  }
+
+}
+
+@media (max-width: 700px) {
+
+  .card {
+    flex-direction: column;
+  }
+
+  .panel {
+    width: 100%;
+    padding: 2rem 1.5rem;
+  }
+
+  .formSide {
+    padding: 2rem 1.5rem;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
