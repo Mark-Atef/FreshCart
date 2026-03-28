@@ -13,30 +13,39 @@ import Register from './Components/Register/Register'
 import Profile from './Components/Profile/Profile'
 import { AuthenticationProvider } from './Context/Authentication.jsx'
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 
-const myRouter = createBrowserRouter( [
+const myRouter = createBrowserRouter([
 
-{path: '/', element: <Layout />, children: [
-  {index: true, element: <Home />},
-  {path: 'home', element: <Home />},
-  {path: 'brands', element: <Brands />},
-  {path: 'cart', element: <ProtectedRoute><Cart /></ProtectedRoute>},
-  {path: 'categories', element: <Categories />},
-  {path: 'login', element: <Login />},
-  {path: 'products', element: <Products />},
-  {path: 'register', element: <Register />},
-  {path: 'profile', element: <ProtectedRoute><Profile /></ProtectedRoute>},
-  {path: '*', element: <NotFound />},
-] },
-] )
+  {
+    path: '/', element: <Layout />, children: [
+      { index: true, element: <Home /> },
+      { path: 'home', element: <Home /> },
+      { path: 'brands', element: <Brands /> },
+      { path: 'cart', element: <ProtectedRoute><Cart /></ProtectedRoute> },
+      { path: 'categories', element: <Categories /> },
+      { path: 'login', element: <Login /> },
+      { path: 'products', element: <Products /> },
+      { path: 'register', element: <Register /> },
+      { path: 'profile', element: <ProtectedRoute><Profile /></ProtectedRoute> },
+      { path: '*', element: <NotFound /> },
+    ]
+  },
+])
 
 export default function App() {
+
+  const queryClient = new QueryClient();
+
+
   return <>
+    <QueryClientProvider client={queryClient}>
 
-  <AuthenticationProvider>
-  <RouterProvider router={myRouter} />
-  </AuthenticationProvider>
+      <AuthenticationProvider>
+        <RouterProvider router={myRouter} />
+      </AuthenticationProvider>
 
+    </QueryClientProvider>
   </>
 }
