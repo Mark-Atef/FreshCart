@@ -1,11 +1,15 @@
+/** biome-ignore-all assist/source/organizeImports: <> */
 import { Link, useNavigate } from 'react-router-dom'
 import styles from './Login.module.css'
 import { useFormik } from 'formik'
 import axios from 'axios'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { RotatingLines } from 'react-loader-spinner'
+import { AuthenticationContext } from '../../Context/Authentication.jsx'
 
 export default function Login() {
+
+  const { setToken } = useContext( AuthenticationContext );
 
   const [errMessage, setErrMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
@@ -24,9 +28,13 @@ export default function Login() {
       )
 
       if (data.message === 'success') {
+
+        localStorage.setItem( "token" , data.token );
+        setToken( data.token );
+
         setSuccessMessage('Login successful! Redirecting...')
         setTimeout(() => {
-          navigate('/home')
+          navigate('/')
         }, 2000)
       }
 

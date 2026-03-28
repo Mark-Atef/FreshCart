@@ -9,9 +9,6 @@ import { RotatingLines } from 'react-loader-spinner';
 
 
 
-
-
-
 export default function Register() {
 
   const [errMessage, setErrMessage] = useState(null);
