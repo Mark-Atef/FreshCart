@@ -91,6 +91,9 @@ export default function Products() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['allProducts'],
     queryFn: getAllProducts,
+      refetchOnMount: false,
+      refetchInterval: 7 * 24 * 60 * 60 * 3000,
+      gcTime: 7 * 24 * 60 * 60 * 3000,
   })
 
   const products = data?.data?.data ?? []
