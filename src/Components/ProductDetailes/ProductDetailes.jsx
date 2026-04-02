@@ -69,8 +69,9 @@ export default function ProductDetailes() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['productDetails', id],
     queryFn: () => fetchProductDetails(id),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchInterval: 60 * 3000,
+    gcTime: 60 * 3000,
   })
 
   const product = data?.data?.data
