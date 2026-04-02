@@ -11,6 +11,7 @@ import NotFound from './Components/NotFound/NotFound'
 import Products from './Components/Products/Products'
 import Register from './Components/Register/Register'
 import Profile from './Components/Profile/Profile'
+import ProductDetailes from './Components/ProductDetailes/ProductDetailes'
 import { AuthenticationProvider } from './Context/Authentication.jsx'
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -29,15 +30,18 @@ const myRouter = createBrowserRouter([
       { path: 'products', element: <Products /> },
       { path: 'register', element: <Register /> },
       { path: 'profile', element: <ProtectedRoute><Profile /></ProtectedRoute> },
+      { path: 'productDetailes/:id', element: <ProtectedRoute><ProductDetailes /></ProtectedRoute> },
       { path: '*', element: <NotFound /> },
     ]
   },
 ])
 
+
+const queryClient = new QueryClient();
+
+
+
 export default function App() {
-
-  const queryClient = new QueryClient();
-
 
   return <>
     <QueryClientProvider client={queryClient}>

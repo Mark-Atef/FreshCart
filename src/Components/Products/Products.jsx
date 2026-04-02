@@ -4,6 +4,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import styles from './Products.module.css'
+import { Link } from 'react-router-dom';
 
 // ── Fetch function — lives OUTSIDE the component ──
 function getAllProducts() {
@@ -58,16 +59,23 @@ function ProductCard({ product }) {
           className={styles.image}
           loading="lazy"
         />
+
+        {/* Wishlist — stopPropagation prevents card click from firing */}
         <button
           type="button"
           className={`${styles.wishlistBtn} ${wishlist ? styles.wishlistActive : ''}`}
-          onClick={() => setWishlist(prev => !prev)}
+          onClick={(e) => { e.stopPropagation(); setWishlist(prev => !prev) }}
           aria-label="Add to wishlist"
         >
           <i className={wishlist ? 'fa-solid fa-heart' : 'fa-regular fa-heart'} />
         </button>
+
         <div className={styles.overlay}>
-          <button type="button" className={styles.addToCartBtn}>
+          <button
+            type="button"
+            className={styles.addToCartBtn}
+            onClick={(e) => e.stopPropagation()}
+          >
             <i className="fa-solid fa-cart-plus" /> Add to Cart
           </button>
         </div>
@@ -91,9 +99,9 @@ export default function Products() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['allProducts'],
     queryFn: getAllProducts,
-      refetchOnMount: false,
-      refetchInterval: 7 * 24 * 60 * 60 * 3000,
-      gcTime: 7 * 24 * 60 * 60 * 3000,
+    refetchOnMount: false,
+    refetchInterval: 60 * 3000,
+    gcTime: 60 * 3000,
   })
 
   const products = data?.data?.data ?? []
@@ -119,8 +127,10 @@ export default function Products() {
         {isLoading
           ? Array.from({ length: 8 }, (_, i) => <SkeletonCard key={`skeleton-${i}`} />)
           : products.map(product => (
-              <ProductCard key={product._id} product={product} />
-            ))
+            <Link key={product._id} to={`/productDetailes/${product._id}`}>
+              <ProductCard product={product} />
+            </Link>
+          ))
         }
       </div>
 
