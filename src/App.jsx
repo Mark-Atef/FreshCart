@@ -15,7 +15,10 @@ import ProductDetailes from './Components/ProductDetailes/ProductDetailes'
 import { AuthenticationProvider } from './Context/Authentication.jsx'
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { CartContextProvider } from './Components/Cart/Cart';
 
+
+const queryClient = new QueryClient();
 
 const myRouter = createBrowserRouter([
 
@@ -36,19 +39,18 @@ const myRouter = createBrowserRouter([
   },
 ])
 
-
-const queryClient = new QueryClient();
-
-
-
 export default function App() {
 
   return <>
     <QueryClientProvider client={queryClient}>
 
-      <AuthenticationProvider>
-        <RouterProvider router={myRouter} />
-      </AuthenticationProvider>
+      <CartContextProvider>
+
+        <AuthenticationProvider>
+          <RouterProvider router={myRouter} />
+        </AuthenticationProvider>
+
+      </CartContextProvider>
 
     </QueryClientProvider>
   </>

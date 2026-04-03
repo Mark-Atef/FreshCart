@@ -65,7 +65,7 @@ export default function ProductDetailes() {
   const [wishlist, setWishlist] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
 
-  // ✅ id is in queryKey — each product has its own cache entry
+  // id is in queryKey — each product has its own cache entry
   const { data, isLoading, isError } = useQuery({
     queryKey: ['productDetails', id],
     queryFn: () => fetchProductDetails(id),

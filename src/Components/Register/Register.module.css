@@ -310,6 +310,93 @@
 }
 
 
+/* Alert body wrapper for error with button */
+.alertBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+ 
+/* Bold alert when email exists — makes it extra visible */
+.alertErrorBold {
+  border-width: 2px !important;
+  border-color: rgba(198, 40, 40, 0.4) !important;
+  background: #ffebee !important;
+  box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.08);
+  animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+ 
+/* Shake animation for strong visual feedback */
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+ 
+/* "Already registered" badge next to label */
+.existsBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #ffebee;
+  color: #c62828;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  animation: badgeIn 0.25s ease both;
+}
+ 
+@keyframes badgeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+ 
+/* Email input with red pulsing border when email exists */
+.inputExists {
+  border-color: #e53935 !important;
+  background: #fffafa !important;
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15) !important;
+  animation: pulseBorder 1.5s ease infinite;
+}
+ 
+@keyframes pulseBorder {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15); }
+  50%       { box-shadow: 0 0 0 5px rgba(229, 57, 53, 0.08); }
+}
+ 
+/* fieldError adds extra spacing */
+.fieldError {
+  gap: 0.5rem;
+}
+ 
+/* Login redirect button inside alert — redesigned */
+.loginRedirectBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #c62828;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+ 
+.loginRedirectBtn:hover {
+  background: #b71c1c;
+  transform: translateY(-1px);
+}
+
+
 /* ============================================
      Responsive
   ============================================ */
