@@ -47,6 +47,36 @@ export default function App() {
 
         <AuthenticationProvider>
           <RouterProvider router={myRouter} />
+
+          {/* ✅ Toaster renders toast notifications globally — place it once here */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                borderRadius: '12px',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+              },
+              success: {
+                style: {
+                  background: '#e8f5e9',
+                  color: '#2e7d32',
+                  border: '1px solid rgba(46,125,50,0.2)',
+                },
+                iconTheme: { primary: '#4caf50', secondary: '#fff' },
+              },
+              error: {
+                style: {
+                  background: '#ffebee',
+                  color: '#c62828',
+                  border: '1px solid rgba(198,40,40,0.2)',
+                },
+                iconTheme: { primary: '#e53935', secondary: '#fff' },
+              },
+            }}
+          />
+
         </AuthenticationProvider>
 
       </CartContextProvider>

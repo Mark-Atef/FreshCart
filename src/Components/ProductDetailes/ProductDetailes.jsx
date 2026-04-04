@@ -1,11 +1,13 @@
 /** biome-ignore-all assist/source/organizeImports: <> */
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import styles from './ProductDetailes.module.css'
+import { CartContext } from '../../Context/CartContext'
 
-// ── Fetch function — OUTSIDE component, accepts id as param ──
+// ── Fetch function — OUTSIDE component ──
 function fetchProductDetails(id) {
   return axios.get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
 }
@@ -34,14 +36,12 @@ function StarRating({ rating }) {
 function ProductDetailSkeleton() {
   return (
     <div className={styles.skeletonWrapper}>
-      {/* Left — image */}
       <div className={styles.skeletonImageBox}>
         <div className={styles.skeletonMainImg} />
         <div className={styles.skeletonThumbs}>
           {[1, 2, 3].map(i => <div key={i} className={styles.skeletonThumb} />)}
         </div>
       </div>
-      {/* Right — info */}
       <div className={styles.skeletonInfo}>
         <div className={styles.skeletonLine} style={{ width: '35%', height: '14px' }} />
         <div className={styles.skeletonLine} style={{ width: '85%', height: '28px' }} />
@@ -59,29 +59,36 @@ function ProductDetailSkeleton() {
 // ── Main ProductDetailes Page ──
 export default function ProductDetailes() {
 
+  const { addToCart, cartLoading } = useContext(CartContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const [quantity, setQuantity] = useState(1)
   const [wishlist, setWishlist] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
 
-  // id is in queryKey — each product has its own cache entry
   const { data, isLoading, isError } = useQuery({
     queryKey: ['productDetails', id],
     queryFn: () => fetchProductDetails(id),
-    refetchOnMount: false,
-    refetchInterval: 60 * 3000,
-    gcTime: 60 * 3000,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 
   const product = data?.data?.data
 
-  // ── All images (cover + extras if available) ──
   const images = product
     ? [product.imageCover, ...(product.images ?? [])].filter(Boolean)
     : []
 
-  // ── Error state ──
+  // ✅ Handle add to cart with toast
+  async function handleAddToCart() {
+    try {
+      await addToCart(product._id)
+      toast.success(`${product.title.split(' ').slice(0, 3).join(' ')} added to cart!`)
+    } catch {
+      toast.error('Failed to add to cart. Please try again.')
+    }
+  }
+
   if (isError) {
     return (
       <section className={styles.section}>
@@ -101,7 +108,6 @@ export default function ProductDetailes() {
   return (
     <section className={styles.section}>
 
-      {/* ── Breadcrumb ── */}
       <nav className={styles.breadcrumb}>
         <button type="button" onClick={() => navigate('/products')} className={styles.breadcrumbLink}>
           Products
@@ -112,17 +118,11 @@ export default function ProductDetailes() {
         </span>
       </nav>
 
-      {/* ── Skeleton while loading ── */}
       {isLoading ? <ProductDetailSkeleton /> : (
-
         <div className={styles.wrapper}>
 
-          {/* ════════════════════════════
-              Left — Image Gallery
-          ════════════════════════════ */}
+          {/* ── Image Gallery ── */}
           <div className={styles.gallery}>
-
-            {/* Main image */}
             <div className={styles.mainImageWrapper}>
               <img
                 src={images[activeImage] || product.imageCover}
@@ -139,7 +139,6 @@ export default function ProductDetailes() {
               </button>
             </div>
 
-            {/* Thumbnails — only if more than 1 image */}
             {images.length > 1 && (
               <div className={styles.thumbs}>
                 {images.map((img, i) => (
@@ -156,28 +155,17 @@ export default function ProductDetailes() {
             )}
           </div>
 
-          {/* ════════════════════════════
-              Right — Product Info
-          ════════════════════════════ */}
+          {/* ── Product Info ── */}
           <div className={styles.info}>
 
-            {/* Category badge */}
-            <span className={styles.categoryBadge}>
-              {product.category?.name}
-            </span>
-
-            {/* Title */}
+            <span className={styles.categoryBadge}>{product.category?.name}</span>
             <h1 className={styles.title}>{product.title}</h1>
 
-            {/* Rating row */}
             <div className={styles.ratingRow}>
               <StarRating rating={product.ratingsAverage} />
-              <span className={styles.ratingCount}>
-                ({product.ratingsQuantity} reviews)
-              </span>
+              <span className={styles.ratingCount}>({product.ratingsQuantity} reviews)</span>
             </div>
 
-            {/* Price */}
             <div className={styles.priceRow}>
               <span className={styles.price}>{product.price} EGP</span>
               {product.priceAfterDiscount && (
@@ -185,13 +173,9 @@ export default function ProductDetailes() {
               )}
             </div>
 
-            {/* Description */}
             <p className={styles.description}>{product.description}</p>
-
-            {/* Divider */}
             <div className={styles.divider} />
 
-            {/* Stock badge */}
             <div className={styles.stockRow}>
               <span className={`${styles.stockBadge} ${product.quantity > 0 ? styles.inStock : styles.outOfStock}`}>
                 <i className={`fa-solid ${product.quantity > 0 ? 'fa-circle-check' : 'fa-circle-xmark'}`} />
@@ -199,7 +183,6 @@ export default function ProductDetailes() {
               </span>
             </div>
 
-            {/* Quantity selector */}
             <div className={styles.quantityRow}>
               <span className={styles.quantityLabel}>Quantity</span>
               <div className={styles.quantityControls}>
@@ -223,15 +206,17 @@ export default function ProductDetailes() {
               </div>
             </div>
 
-            {/* Action buttons */}
             <div className={styles.actions}>
               <button
                 type="button"
                 className={styles.addToCartBtn}
-                disabled={product.quantity === 0}
+                onClick={handleAddToCart}
+                disabled={product.quantity === 0 || cartLoading}
               >
-                <i className="fa-solid fa-cart-plus" />
-                Add to Cart
+                {cartLoading
+                  ? <><i className="fa-solid fa-spinner fa-spin" /> Adding...</>
+                  : <><i className="fa-solid fa-cart-plus" /> Add to Cart</>
+                }
               </button>
               <button
                 type="button"
@@ -242,7 +227,6 @@ export default function ProductDetailes() {
               </button>
             </div>
 
-            {/* Delivery info */}
             <div className={styles.deliveryInfo}>
               <div className={styles.deliveryItem}>
                 <i className="fa-solid fa-truck-fast" />
@@ -257,7 +241,6 @@ export default function ProductDetailes() {
           </div>
         </div>
       )}
-
     </section>
   )
 }

@@ -15,6 +15,7 @@ export function CartContextProvider({ children }) {
 
   const [cartCount, setCartCount] = useState(0)
   const [cartLoading, setCartLoading] = useState(false)
+  const [totalCartPrice, setTotalCartPrice] = useState(0)
 
   // ── Add product to cart ──
   async function addToCart(productId) {

@@ -1,12 +1,13 @@
 /** biome-ignore-all assist/source/organizeImports: <> */
-/** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
+import { CartContext } from '../../Context/CartContext'
+import toast from 'react-hot-toast'
 import styles from './Products.module.css'
-import { Link } from 'react-router-dom';
 
-// ── Fetch function — lives OUTSIDE the component ──
+// ── Fetch function — OUTSIDE component ──
 function getAllProducts() {
   return axios.get('https://ecommerce.routemisr.com/api/v1/products')
 }
@@ -47,11 +48,27 @@ function SkeletonCard() {
 }
 
 // ── Product Card ──
-function ProductCard({ product }) {
+// ✅ addToCart and cartLoading are passed as PROPS — not accessed from thin air
+function ProductCard({ product, addToCart, cartLoading }) {
   const [wishlist, setWishlist] = useState(false)
+  const navigate = useNavigate()
+
+  // ✅ Handle add to cart with toast notifications
+  async function handleAddToCart(e) {
+    e.stopPropagation() // prevent navigating to product details
+    try {
+      await addToCart(product._id)
+      toast.success(`${product.title.split(' ').slice(0, 3).join(' ')} added to cart!`)
+    } catch {
+      toast.error('Failed to add to cart. Please try again.')
+    }
+  }
 
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      onClick={() => navigate(`/productDetailes/${product._id}`)}
+    >
       <div className={styles.imageWrapper}>
         <img
           src={product.imageCover}
@@ -60,7 +77,6 @@ function ProductCard({ product }) {
           loading="lazy"
         />
 
-        {/* Wishlist — stopPropagation prevents card click from firing */}
         <button
           type="button"
           className={`${styles.wishlistBtn} ${wishlist ? styles.wishlistActive : ''}`}
@@ -74,9 +90,13 @@ function ProductCard({ product }) {
           <button
             type="button"
             className={styles.addToCartBtn}
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleAddToCart}
+            disabled={product.quantity === 0 || cartLoading}
           >
-            <i className="fa-solid fa-cart-plus" /> Add to Cart
+            {cartLoading
+              ? <><i className="fa-solid fa-spinner fa-spin" /> Adding...</>
+              : <><i className="fa-solid fa-cart-plus" /> Add to Cart</>
+            }
           </button>
         </div>
       </div>
@@ -96,12 +116,14 @@ function ProductCard({ product }) {
 // ── Main Products Page ──
 export default function Products() {
 
+  // ✅ useContext in the PARENT — then pass down as props
+  const { addToCart, cartLoading } = useContext(CartContext)
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['allProducts'],
     queryFn: getAllProducts,
-    refetchOnMount: false,
-    refetchInterval: 60 * 3000,
-    gcTime: 60 * 3000,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 
   const products = data?.data?.data ?? []
@@ -127,10 +149,14 @@ export default function Products() {
         {isLoading
           ? Array.from({ length: 8 }, (_, i) => <SkeletonCard key={`skeleton-${i}`} />)
           : products.map(product => (
-            <Link key={product._id} to={`/productDetailes/${product._id}`}>
-              <ProductCard product={product} />
-            </Link>
-          ))
+              // ✅ addToCart and cartLoading passed as props
+              <ProductCard
+                key={product._id}
+                product={product}
+                addToCart={addToCart}
+                cartLoading={cartLoading}
+              />
+            ))
         }
       </div>
 

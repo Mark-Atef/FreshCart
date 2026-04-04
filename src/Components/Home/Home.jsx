@@ -2,9 +2,11 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useContext } from 'react'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -14,9 +16,8 @@ import slide2 from '../../assets/images/slider-image-2.jpeg'
 import slide3 from '../../assets/images/slider-image-3.jpeg'
 import groceryBanner from '../../assets/images/grocery-banner.png'
 import groceryBanner2 from '../../assets/images/grocery-banner-2.jpeg'
-import { useContext } from 'react'
 import { AuthenticationContext } from '../../Context/Authentication.jsx'
-
+import { CartContext } from '../../Context/CartContext.jsx' // ✅ was missing!
 
 // ── Fetch functions — outside component ──
 function getFeaturedProducts() {
@@ -71,14 +72,38 @@ function StarRating({ rating }) {
 }
 
 // ── Product Card ──
-function ProductCard({ product }) {
+// ✅ addToCart and cartLoading received as PROPS
+function ProductCard({ product, addToCart, cartLoading }) {
+  const navigate = useNavigate()
+
+  async function handleAddToCart(e) {
+    e.stopPropagation() // prevent card click from navigating
+    try {
+      await addToCart(product._id)
+      toast.success(`${product.title.split(' ').slice(0, 3).join(' ')} added to cart!`)
+    } catch {
+      toast.error('Failed to add to cart. Please try again.')
+    }
+  }
+
   return (
-    <div className={styles.productCard}>
+    <div
+      className={styles.productCard}
+      onClick={() => navigate(`/productDetailes/${product._id}`)}
+    >
       <div className={styles.productImageWrapper}>
         <img src={product.imageCover} alt={product.title} className={styles.productImage} loading="lazy" />
         <div className={styles.productOverlay}>
-          <button type="button" className={styles.addToCartBtn}>
-            <i className="fa-solid fa-cart-plus" /> Add to Cart
+          <button
+            type="button"
+            className={styles.addToCartBtn}
+            onClick={handleAddToCart}
+            disabled={product.quantity === 0 || cartLoading}
+          >
+            {cartLoading
+              ? <><i className="fa-solid fa-spinner fa-spin" /> Adding...</>
+              : <><i className="fa-solid fa-cart-plus" /> Add to Cart</>
+            }
           </button>
         </div>
       </div>
@@ -114,6 +139,10 @@ function SectionHeader({ title, subtitle, linkTo, linkLabel }) {
 // ── Main Home Page ──
 export default function Home() {
 
+  // ✅ Both contexts imported and used correctly in the PARENT
+  const { token } = useContext(AuthenticationContext)
+  const { addToCart, cartLoading } = useContext(CartContext)
+
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['featuredProducts'],
     queryFn: getFeaturedProducts,
@@ -128,11 +157,6 @@ export default function Home() {
 
   const products = productsData?.data?.data ?? []
   const categories = categoriesData?.data?.data ?? []
-
-
-  const { token } = useContext(AuthenticationContext)
-
-
 
   return (
     <main className={styles.main}>
@@ -152,9 +176,9 @@ export default function Home() {
           className={styles.heroSwiper}
         >
           {[
-            { img: slide1, badge: 'New Arrivals', title: 'Fresh Groceries\nDelivered Fast', text: 'From farm to your door in under 2 hours' },
-            { img: slide2, badge: 'Best Deals', title: 'Fresh Produce\nEvery Day', text: 'Handpicked fruits and vegetables daily' },
-            { img: slide3, badge: 'Free Delivery', title: 'Special Offers\nThis Week', text: 'Free delivery on orders over 200 EGP' },
+            { img: slide1, badge: 'New Arrivals', title: 'Fresh Groceries Delivered Fast', text: 'From farm to your door in under 2 hours' },
+            { img: slide2, badge: 'Best Deals', title: 'Fresh Produce Every Day', text: 'Handpicked fruits and vegetables daily' },
+            { img: slide3, badge: 'Free Delivery', title: 'Special Offers This Week', text: 'Free delivery on orders over 200 EGP' },
           ].map((slide, i) => (
             <SwiperSlide key={`slide-${i}`}>
               <div className={styles.slide}>
@@ -162,7 +186,7 @@ export default function Home() {
                 <div className={styles.slideOverlay}>
                   <div className={styles.slideContent}>
                     <span className={styles.slideBadge}>{slide.badge}</span>
-                    <h1 className={styles.slideTitle}>{slide.title.replace('\n', ' ')}</h1>
+                    <h1 className={styles.slideTitle}>{slide.title}</h1>
                     <p className={styles.slideText}>{slide.text}</p>
                     <Link to="/products" className={styles.slideBtn}>
                       Shop Now <i className="fa-solid fa-arrow-right" />
@@ -278,7 +302,15 @@ export default function Home() {
         <div className={styles.productsGrid}>
           {productsLoading
             ? Array.from({ length: 8 }, (_, i) => <ProductSkeleton key={`prod-sk-${i}`} />)
-            : products.map(product => <ProductCard key={product._id} product={product} />)
+            // ✅ Pass addToCart and cartLoading as props
+            : products.map(product => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  addToCart={addToCart}
+                  cartLoading={cartLoading}
+                />
+              ))
           }
         </div>
       </section>
@@ -291,8 +323,8 @@ export default function Home() {
           <h2 className={styles.ctaTitle}>Get Fresh Groceries Delivered Today</h2>
           <p className={styles.ctaText}>Join thousands of happy customers. Free delivery on your first order!</p>
           <div className={styles.ctaButtons}>
-            <Link to={token ? "/home" : "/register"} className={styles.ctaPrimary}>
-              {token ? "Back to Home" : "Get Started Free"}
+            <Link to={token ? '/' : '/register'} className={styles.ctaPrimary}>
+              {token ? 'Back to Home' : 'Get Started Free'}
             </Link>
             <Link to="/products" className={styles.ctaSecondary}>Browse Products</Link>
           </div>
