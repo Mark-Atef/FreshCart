@@ -15,8 +15,7 @@ import ProductDetailes from './Components/ProductDetailes/ProductDetailes'
 import { AuthenticationProvider } from './Context/Authentication.jsx'
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { CartContextProvider } from './Components/Cart/Cart';
-
+import { CartContextProvider } from './Context/CartContext'
 
 const queryClient = new QueryClient();
 

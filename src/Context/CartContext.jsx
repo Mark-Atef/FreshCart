@@ -1,30 +1,113 @@
-import axios from "axios";
-import { createContext } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import axios from 'axios'
+import { createContext, useState } from 'react'
 
-export const CartContext = createContext();
+export const CartContext = createContext()
+
+const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/cart'
+
+// Helper — always gets fresh token from localStorage
+function getHeaders() {
+  return { token: localStorage.getItem('token') }
+}
 
 export function CartContextProvider({ children }) {
 
-    async function addToCart(productId) {
-        const {data} = await axios.post("https://ecommerce.routemisr.com/api/v2/cart",
-            {
-                "productId": productId
-            },
-            {
-                headers: {
-                    token: localStorage.getItem("token")
-                }
-            }
-        )
+  const [cartCount, setCartCount] = useState(0)
+  const [cartLoading, setCartLoading] = useState(false)
 
-        return data;
+  // ── Add product to cart ──
+  async function addToCart(productId) {
+    setCartLoading(true)
+    try {
+      const { data } = await axios.post(
+        BASE_URL,
+        { productId },
+        { headers: getHeaders() }
+      )
+      // Update cart count from response
+      setCartCount(data.numOfCartItems)
+      return data
+    } catch (err) {
+      console.error('Add to cart failed:', err.response?.data?.message)
+      throw err // re-throw so the component can show an error
+    } finally {
+      setCartLoading(false)
     }
+  }
 
+  // ── Get user's cart ──
+  async function getCart() {
+    try {
+      const { data } = await axios.get(
+        BASE_URL,
+        { headers: getHeaders() }
+      )
+      setCartCount(data.numOfCartItems)
+      return data
+    } catch (err) {
+      console.error('Get cart failed:', err.response?.data?.message)
+      throw err
+    }
+  }
 
-    return <CartContext.Provider value={{ addToCart }}>
+  // ── Remove product from cart ──
+  async function removeFromCart(productId) {
+    try {
+      const { data } = await axios.delete(
+        `${BASE_URL}/${productId}`,
+        { headers: getHeaders() }
+      )
+      setCartCount(data.numOfCartItems)
+      return data
+    } catch (err) {
+      console.error('Remove from cart failed:', err.response?.data?.message)
+      throw err
+    }
+  }
 
-        {children}
+  // ── Update product quantity ──
+  async function updateQuantity(productId, count) {
+    try {
+      const { data } = await axios.put(
+        `${BASE_URL}/${productId}`,
+        { count },
+        { headers: getHeaders() }
+      )
+      setCartCount(data.numOfCartItems)
+      return data
+    } catch (err) {
+      console.error('Update quantity failed:', err.response?.data?.message)
+      throw err
+    }
+  }
 
+  // ── Clear entire cart ──
+  async function clearCart() {
+    try {
+      const { data } = await axios.delete(
+        BASE_URL,
+        { headers: getHeaders() }
+      )
+      setCartCount(0)
+      return data
+    } catch (err) {
+      console.error('Clear cart failed:', err.response?.data?.message)
+      throw err
+    }
+  }
+
+  return (
+    <CartContext.Provider value={{
+      addToCart,
+      getCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      cartCount,
+      cartLoading,
+    }}>
+      {children}
     </CartContext.Provider>
-
+  )
 }
