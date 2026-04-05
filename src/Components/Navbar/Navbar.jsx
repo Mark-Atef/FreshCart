@@ -62,9 +62,11 @@ export default function Navbar() {
           <li><NavLink to="/products" className={({ isActive }) => isActive ? styles.active : ''}>Products</NavLink></li>
           <li><NavLink to="/categories" className={({ isActive }) => isActive ? styles.active : ''}>Categories</NavLink></li>
           <li><NavLink to="/brands" className={({ isActive }) => isActive ? styles.active : ''}>Brands</NavLink></li>
-          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.active : ''}>Cart  {cartCount > 0 && (
-            <span className={styles.badge}>{cartCount}</span>
-          )}</NavLink></li>
+          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.active : ''}>Cart{cartCount > 0 && (
+            <span className={styles.cartBadge}>
+              {cartCount > 99 ? '99+' : cartCount}
+            </span>)}
+          </NavLink></li>
         </ul>
 
         {/* ── Desktop right side ── */}
@@ -147,7 +149,9 @@ export default function Navbar() {
           <li><NavLink to="/products" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-box" /> Products</NavLink></li>
           <li><NavLink to="/categories" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-layer-group" /> Categories</NavLink></li>
           <li><NavLink to="/brands" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-tag" /> Brands</NavLink></li>
-          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-cart-shopping" /> Cart</NavLink></li>
+          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-cart-shopping" /> Cart               {cartCount > 0 && (
+            <span className={styles.mobileBadge}>{cartCount > 99 ? '99+' : cartCount}</span>
+          )}</NavLink></li>
         </ul>
 
         <div className={styles.mobileDivider} />

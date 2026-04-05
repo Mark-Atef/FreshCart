@@ -68,6 +68,20 @@
   background: rgba(76, 175, 80, 0.10);
 }
 
+.cartBadge {
+  background: #2e7d32;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
 /* ── Right side wrapper ── */
 .navRight {
   display: flex;
@@ -373,6 +387,24 @@
   color: #4caf50;
 }
 
+
+.mobileBadge {
+  background: #2e7d32;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  margin-left: auto;
+  animation: badgePop 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+ 
+
 /* ── Divider ── */
 .mobileDivider {
   height: 1px;
@@ -449,19 +481,6 @@
   background: rgba(76, 175, 80, 0.08);
 }
 
-.badge {
-  background: #2e7d32;
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 800;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 4px;
-}
 
 /* ============================================
    Responsive breakpoints

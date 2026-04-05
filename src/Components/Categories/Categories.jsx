@@ -1,15 +1,14 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import styles from './Categories.module.css'
 
-// ── Fetch function — outside component ──
 function getAllCategories() {
   return axios.get('https://ecommerce.routemisr.com/api/v1/categories')
 }
 
-// ── Skeleton Card ──
 function SkeletonCard() {
   return (
     <div className={styles.skeletonCard}>
@@ -22,10 +21,15 @@ function SkeletonCard() {
   )
 }
 
-// ── Category Card ──
-function CategoryCard({ category }) {
+// ✅ Changed from div to button — fixes Biome noStaticElementInteractions
+function CategoryCard({ category, onClick }) {
   return (
-    <div className={styles.card}>
+    <button
+      type="button"
+      className={styles.card}
+      onClick={onClick}
+      aria-label={`Browse ${category.name} products`}
+    >
       <div className={styles.imageWrapper}>
         <img
           src={category.image}
@@ -34,21 +38,22 @@ function CategoryCard({ category }) {
           loading="lazy"
         />
         <div className={styles.overlay}>
-          <button type="button" className={styles.exploreBtn}>
+          <span className={styles.exploreBtn}>
             <i className="fa-solid fa-arrow-right" /> Explore
-          </button>
+          </span>
         </div>
       </div>
       <div className={styles.body}>
         <h3 className={styles.name}>{category.name}</h3>
         <span className={styles.meta}>Browse products</span>
       </div>
-    </div>
+    </button>
   )
 }
 
-// ── Main Categories Page ──
 export default function Categories() {
+
+  const navigate = useNavigate()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['allCategories'],
@@ -63,7 +68,6 @@ export default function Categories() {
   return (
     <section className={styles.section}>
 
-      {/* ── Page Header ── */}
       <div className={styles.pageHeader}>
         <div className={styles.headerContent}>
           <span className={styles.headerBadge}>
@@ -78,7 +82,6 @@ export default function Categories() {
         </div>
       </div>
 
-      {/* ── Error ── */}
       {isError && (
         <div className={styles.errorBox}>
           <i className="fa-solid fa-circle-exclamation" />
@@ -86,12 +89,15 @@ export default function Categories() {
         </div>
       )}
 
-      {/* ── Grid ── */}
       <div className={styles.grid}>
         {isLoading
           ? Array.from({ length: 12 }, (_, i) => <SkeletonCard key={`sk-${i}`} />)
           : categories.map(category => (
-              <CategoryCard key={category._id} category={category} />
+              <CategoryCard
+                key={category._id}
+                category={category}
+                onClick={() => navigate(`/products?category=${category._id}`)}
+              />
             ))
         }
       </div>
