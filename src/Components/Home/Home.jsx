@@ -87,7 +87,8 @@ function ProductCard({ product, addToCart, cartLoading }) {
   }
 
   return (
-    <div
+    <button
+      type="button"
       className={styles.productCard}
       onClick={() => navigate(`/productDetailes/${product._id}`)}
     >
@@ -115,7 +116,7 @@ function ProductCard({ product, addToCart, cartLoading }) {
           <StarRating rating={product.ratingsAverage} />
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 

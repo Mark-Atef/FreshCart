@@ -16,6 +16,7 @@ import { AuthenticationProvider } from './Context/Authentication.jsx'
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { CartContextProvider } from './Context/CartContext'
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient();
 

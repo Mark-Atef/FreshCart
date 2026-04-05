@@ -1,8 +1,9 @@
 /** biome-ignore-all assist/source/organizeImports: <> */
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
 import { useContext, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContext'
 import toast from 'react-hot-toast'
 import styles from './Products.module.css'
@@ -65,9 +66,16 @@ function ProductCard({ product, addToCart, cartLoading }) {
   }
 
   return (
-    <div
+    <button
       className={styles.card}
       onClick={() => navigate(`/productDetailes/${product._id}`)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          navigate(`/productDetailes/${product._id}`)
+        }
+      }}
     >
       <div className={styles.imageWrapper}>
         <img
@@ -109,7 +117,7 @@ function ProductCard({ product, addToCart, cartLoading }) {
           <StarRating rating={product.ratingsAverage} />
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 
