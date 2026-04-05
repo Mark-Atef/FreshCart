@@ -222,6 +222,7 @@ export default function ProductDetailes() {
                 type="button"
                 className={styles.buyNowBtn}
                 disabled={product.quantity === 0}
+                onClick={() => navigate('/checkout')}
               >
                 Buy Now
               </button>
