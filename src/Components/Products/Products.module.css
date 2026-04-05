@@ -190,7 +190,7 @@
    Product Card — button reset + card styles
 ============================================ */
 .card {
-  /* ✅ Reset browser button defaults */
+  /* Reset browser button defaults */
   font-family: inherit;
   text-align: left;
   width: 100%;

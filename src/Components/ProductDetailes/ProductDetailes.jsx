@@ -79,7 +79,7 @@ export default function ProductDetailes() {
     ? [product.imageCover, ...(product.images ?? [])].filter(Boolean)
     : []
 
-  // ✅ Handle add to cart with toast
+  // Handle add to cart with toast
   async function handleAddToCart() {
     try {
       await addToCart(product._id)

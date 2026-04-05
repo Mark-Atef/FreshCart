@@ -3,6 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "meta": {
+    "title": "FreshCart",
+    "description": "FreshCart - Your one-stop shop for all your needs",
+    "author": "Mark Yacoub",
+    "keywords": [
+      "freshcart",
+      "ecommerce",
+      "grocery",
+      "online shopping"
+    ]
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

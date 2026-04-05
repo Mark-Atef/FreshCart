@@ -144,7 +144,7 @@ export default function Cart() {
     }
   }, [getCart])
 
-  // ✅ Now getCart is stable via useCallback — add loadCart to deps
+  // Now getCart is stable via useCallback — add loadCart to deps
   useEffect(() => {
     loadCart()
   }, [loadCart])

@@ -48,7 +48,7 @@ export default function Profile() {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // ✅ useCallback makes loadUser stable — safe to add to useEffect deps
+  // useCallback makes loadUser stable — safe to add to useEffect deps
   const loadUser = useCallback(async () => {
     try {
       const data = await fetchUserData()
@@ -61,11 +61,11 @@ export default function Profile() {
     } finally {
       setIsLoading(false)
     }
-  }, [navigate, setToken]) // ✅ navigate and setToken in deps
+  }, [navigate, setToken]) // navigate and setToken in deps
 
   useEffect(() => {
     loadUser()
-  }, [loadUser]) // ✅ loadUser is stable via useCallback
+  }, [loadUser]) // loadUser is stable via useCallback
 
   function handleLogout() {
     localStorage.removeItem('token')

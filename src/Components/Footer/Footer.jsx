@@ -130,7 +130,7 @@ export default function Footer() {
       {/* ── Bottom Bar ── */}
       <div className={styles.bottomBar}>
         <p className={styles.copyright}>
-          © {currentYear} FreshCart. All rights reserved. Made with <i className="fa-solid fa-heart" style={{ color: '#e53935' }} /> in Egypt.
+          © {currentYear} FreshCart. All rights reserved. Made By Mark Yacoub.
         </p>
         <div className={styles.paymentIcons}>
           <i className="fab fa-cc-visa" title="Visa" />

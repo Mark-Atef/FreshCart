@@ -49,7 +49,7 @@ export default function App() {
         <AuthenticationProvider>
           <RouterProvider router={myRouter} />
 
-          {/* ✅ Toaster renders toast notifications globally — place it once here */}
+          {/*  Toaster renders toast notifications globally — place it once here */}
           <Toaster
             position="top-right"
             toastOptions={{

@@ -72,7 +72,7 @@ function StarRating({ rating }) {
 }
 
 // ── Product Card ──
-// ✅ addToCart and cartLoading received as PROPS
+//  addToCart and cartLoading received as PROPS
 function ProductCard({ product, addToCart, cartLoading }) {
   const navigate = useNavigate()
 
@@ -140,7 +140,7 @@ function SectionHeader({ title, subtitle, linkTo, linkLabel }) {
 // ── Main Home Page ──
 export default function Home() {
 
-  // ✅ Both contexts imported and used correctly in the PARENT
+  // ] Both contexts imported and used correctly in the PARENT
   const { token } = useContext(AuthenticationContext)
   const { addToCart, cartLoading } = useContext(CartContext)
 
@@ -303,7 +303,7 @@ export default function Home() {
         <div className={styles.productsGrid}>
           {productsLoading
             ? Array.from({ length: 8 }, (_, i) => <ProductSkeleton key={`prod-sk-${i}`} />)
-            // ✅ Pass addToCart and cartLoading as props
+            //  Pass addToCart and cartLoading as props
             : products.map(product => (
                 <ProductCard
                   key={product._id}

@@ -16,13 +16,13 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // ✅ Where the user was trying to go before being redirected to login
+  // Where the user was trying to go before being redirected to login
   const from = location.state?.from || '/'
 
-  // ✅ Ref attached to the alert div — used to scroll to it
+  // Ref attached to the alert div — used to scroll to it
   const alertRef = useRef(null)
 
-  // ✅ Scroll to alert whenever errMessage or successMessage appears
+  // Scroll to alert whenever errMessage or successMessage appears
   useEffect(() => {
     if (errMessage || successMessage) {
       alertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -45,7 +45,7 @@ export default function Login() {
         setToken(data.token)
         setSuccessMessage('Login successful! Redirecting...')
         setTimeout(() => {
-          // ✅ Go back to where the user originally came from
+          // Go back to where the user originally came from
           navigate(from)
         }, 1500)
       }
@@ -97,14 +97,14 @@ export default function Login() {
         <div className={styles.headingBlock}>
           <h1 className={styles.title}>Welcome Back</h1>
           <p className={styles.subtitle}>
-            {/* ✅ Tell user where they'll be redirected after login */}
+            {/* Tell user where they'll be redirected after login */}
             {from !== '/'
               ? `Sign in to continue to ${from.replace('/', '')}`
               : 'Sign in to continue shopping'}
           </p>
         </div>
 
-        {/* ✅ ref attached here — scrolls into view when message appears */}
+        {/* ref attached here — scrolls into view when message appears */}
         <div ref={alertRef}>
           {errMessage && (
             <div className={styles.alertError}>

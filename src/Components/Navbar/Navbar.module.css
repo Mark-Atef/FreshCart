@@ -449,6 +449,20 @@
   background: rgba(76, 175, 80, 0.08);
 }
 
+.badge {
+  background: #2e7d32;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
 /* ============================================
    Responsive breakpoints
 ============================================ */

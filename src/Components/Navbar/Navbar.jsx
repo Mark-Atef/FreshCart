@@ -6,10 +6,12 @@ import logo from '../../assets/images/freshcart-logo.svg'
 import { AuthenticationContext } from '../../Context/Authentication.jsx'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { CartContext } from '../../Context/CartContext.jsx'
 
 export default function Navbar() {
 
   const { token, setToken } = useContext(AuthenticationContext);
+  const { cartCount } = useContext(CartContext)
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -60,7 +62,9 @@ export default function Navbar() {
           <li><NavLink to="/products" className={({ isActive }) => isActive ? styles.active : ''}>Products</NavLink></li>
           <li><NavLink to="/categories" className={({ isActive }) => isActive ? styles.active : ''}>Categories</NavLink></li>
           <li><NavLink to="/brands" className={({ isActive }) => isActive ? styles.active : ''}>Brands</NavLink></li>
-          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.active : ''}>Cart</NavLink></li>
+          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.active : ''}>Cart  {cartCount > 0 && (
+            <span className={styles.badge}>{cartCount}</span>
+          )}</NavLink></li>
         </ul>
 
         {/* ── Desktop right side ── */}

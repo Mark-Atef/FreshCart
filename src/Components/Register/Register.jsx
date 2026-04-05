@@ -15,20 +15,20 @@ export default function Register() {
   const [emailExists, setEmailExists] = useState(false)
   const navigate = useNavigate()
 
-  // ✅ Ref for error alert — scrolls to it when it appears
+  // Ref for error alert — scrolls to it when it appears
   const alertRef = useRef(null)
 
-  // ✅ Ref for email field — scrolls to it when email already exists
+  // Ref for email field — scrolls to it when email already exists
   const emailRef = useRef(null)
 
-  // ✅ Scroll to alert when any message appears
+  // Scroll to alert when any message appears
   useEffect(() => {
     if (errMessage || successMessage) {
       alertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }, [errMessage, successMessage])
 
-  // ✅ Scroll to email field when email already exists
+  // Scroll to email field when email already exists
   useEffect(() => {
     if (emailExists) {
       emailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -59,7 +59,7 @@ export default function Register() {
       const message = err.response?.data?.message || 'Something went wrong'
 
       if (message.toLowerCase().includes('exist')) {
-        // ✅ Special case — email exists — mark field and scroll to it
+        // Special case — email exists — mark field and scroll to it
         setEmailExists(true)
         setErrMessage('This email is already registered. Please use a different email or log in.')
       } else {
@@ -108,7 +108,7 @@ export default function Register() {
     },
   })
 
-  // ✅ Clear emailExists flag when user starts typing a new email
+  // Clear emailExists flag when user starts typing a new email
   function handleEmailChange(e) {
     setEmailExists(false)
     formik.handleChange(e)
@@ -142,7 +142,7 @@ export default function Register() {
           <h1 className={styles.title}>Create Account</h1>
           <p className={styles.subtitle}>Fill in your details to get started</p>
 
-          {/* ✅ Alert section — ref attached for scrolling */}
+          {/* Alert section — ref attached for scrolling */}
           <div ref={alertRef}>
             {errMessage && (
               <div className={`${styles.alertError} ${emailExists ? styles.alertErrorBold : ''}`}>
@@ -191,11 +191,11 @@ export default function Register() {
               )}
             </div>
 
-            {/* ✅ Email field — ref attached + special red border when email exists */}
+            {/* Email field — ref attached + special red border when email exists */}
             <div className={`${styles.field} ${emailExists ? styles.fieldError : ''}`}>
               <label className={styles.label} htmlFor="email">
                 Email Address
-                {/* ✅ Extra visible badge when email exists */}
+                {/* Extra visible badge when email exists */}
                 {emailExists && (
                   <span className={styles.existsBadge}>
                     <i className="fa-solid fa-triangle-exclamation" /> Already registered

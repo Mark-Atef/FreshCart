@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
+/** biome-ignore-all assist/source/organizeImports: <> */
 import axios from 'axios'
-import { createContext, useState } from 'react'
+import { createContext, useState, useEffect } from 'react'
 
 export const CartContext = createContext()
 
@@ -15,7 +16,6 @@ export function CartContextProvider({ children }) {
 
   const [cartCount, setCartCount] = useState(0)
   const [cartLoading, setCartLoading] = useState(false)
-  const [totalCartPrice, setTotalCartPrice] = useState(0)
 
   // ── Add product to cart ──
   async function addToCart(productId) {
@@ -97,6 +97,23 @@ export function CartContextProvider({ children }) {
       throw err
     }
   }
+
+
+    useEffect(() => {
+      const token = localStorage.getItem('token')
+      if (!token) return // ← exit early, don't even try
+
+      async function loadInitialCart() {
+        try {
+          const { data } = await axios.get(BASE_URL, { headers: getHeaders() })
+          setCartCount(data.numOfCartItems)
+        } catch {
+          // silently fail — user will see empty cart
+        }
+      }
+
+      loadInitialCart()
+    }, []) // ← runs once on app start
 
   return (
     <CartContext.Provider value={{
