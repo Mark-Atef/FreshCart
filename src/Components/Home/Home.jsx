@@ -17,7 +17,7 @@ import slide3 from '../../assets/images/slider-image-3.jpeg'
 import groceryBanner from '../../assets/images/grocery-banner.png'
 import groceryBanner2 from '../../assets/images/grocery-banner-2.jpeg'
 import { AuthenticationContext } from '../../Context/Authentication.jsx'
-import { CartContext } from '../../Context/CartContext.jsx' // ✅ was missing!
+import { CartContext } from '../../Context/CartContext.jsx'
 
 // ── Fetch functions — outside component ──
 function getFeaturedProducts() {

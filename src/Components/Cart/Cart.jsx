@@ -1,5 +1,5 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContext'
 import toast from 'react-hot-toast'
@@ -49,7 +49,6 @@ function CartItem({ item, onRemove, onUpdateQty }) {
   return (
     <div className={styles.cartItem}>
 
-      {/* Image */}
       <Link to={`/productDetailes/${item.product._id}`} className={styles.itemImageLink}>
         <img
           src={item.product.imageCover}
@@ -58,7 +57,6 @@ function CartItem({ item, onRemove, onUpdateQty }) {
         />
       </Link>
 
-      {/* Info */}
       <div className={styles.itemInfo}>
         <Link to={`/productDetailes/${item.product._id}`} className={styles.itemTitle}>
           {item.product.title}
@@ -67,7 +65,6 @@ function CartItem({ item, onRemove, onUpdateQty }) {
         <span className={styles.itemUnitPrice}>{item.price} EGP each</span>
       </div>
 
-      {/* Quantity Controls */}
       <div className={styles.qtyControls}>
         <button
           type="button"
@@ -92,12 +89,10 @@ function CartItem({ item, onRemove, onUpdateQty }) {
         </button>
       </div>
 
-      {/* Subtotal */}
       <div className={styles.itemSubtotal}>
         {(item.price * item.count).toLocaleString()} EGP
       </div>
 
-      {/* Remove */}
       <button
         type="button"
         className={styles.removeBtn}
@@ -137,34 +132,33 @@ export default function Cart() {
   const [isLoading, setIsLoading] = useState(true)
   const [isClearing, setIsClearing] = useState(false)
 
-  // ── Fetch cart on mount ──
-  useEffect(() => {
-    async function loadCart() {
-      try {
-        const data = await getCart()
-        setCartData(data)
-      } catch {
-        toast.error('Failed to load cart')
-      } finally {
-        setIsLoading(false)
-      }
+  // ✅ useCallback — stable reference for useEffect dependency
+  const loadCart = useCallback(async () => {
+    try {
+      const data = await getCart()
+      setCartData(data)
+    } catch {
+      toast.error('Failed to load cart')
+    } finally {
+      setIsLoading(false)
     }
-    loadCart()
-  }, [])
+  }, [getCart])
 
-  // ── Remove item and refresh ──
+  // ✅ Now getCart is stable via useCallback — add loadCart to deps
+  useEffect(() => {
+    loadCart()
+  }, [loadCart])
+
   async function handleRemove(productId) {
     const data = await removeFromCart(productId)
     setCartData(data)
   }
 
-  // ── Update quantity and refresh ──
   async function handleUpdateQty(productId, count) {
     const data = await updateQuantity(productId, count)
     setCartData(data)
   }
 
-  // ── Clear entire cart ──
   async function handleClearCart() {
     setIsClearing(true)
     try {
@@ -185,7 +179,6 @@ export default function Cart() {
   return (
     <section className={styles.section}>
 
-      {/* Header */}
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.pageTitle}>My Cart</h1>
@@ -208,7 +201,6 @@ export default function Cart() {
         )}
       </div>
 
-      {/* Loading */}
       {isLoading && (
         <div className={styles.cartGrid}>
           <div className={styles.itemsList}>
@@ -217,17 +209,12 @@ export default function Cart() {
         </div>
       )}
 
-      {/* Empty */}
       {!isLoading && items.length === 0 && <EmptyCart />}
 
-      {/* Cart Items */}
       {!isLoading && items.length > 0 && (
         <div className={styles.cartGrid}>
 
-          {/* Left — Items */}
           <div className={styles.itemsList}>
-
-            {/* Column headers */}
             <div className={styles.listHeader}>
               <span>Product</span>
               <span className={styles.headerQty}>Quantity</span>
@@ -245,7 +232,6 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Right — Order Summary */}
           <div className={styles.summary}>
 
             <h2 className={styles.summaryTitle}>Order Summary</h2>
@@ -288,7 +274,6 @@ export default function Cart() {
               <i className="fa-solid fa-arrow-left" /> Continue Shopping
             </Link>
 
-            {/* Accepted payments */}
             <div className={styles.paymentMethods}>
               <p className={styles.paymentLabel}>We accept</p>
               <div className={styles.paymentIcons}>

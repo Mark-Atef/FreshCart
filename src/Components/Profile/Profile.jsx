@@ -1,12 +1,11 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { AuthenticationContext } from '../../Context/Authentication'
 import styles from './Profile.module.css'
 import toast from 'react-hot-toast'
 
-// ── Fetch user data ──
 async function fetchUserData() {
   const { data } = await axios.get(
     'https://ecommerce.routemisr.com/api/v1/auth/verifyToken',
@@ -15,7 +14,6 @@ async function fetchUserData() {
   return data
 }
 
-// ── Skeleton ──
 function ProfileSkeleton() {
   return (
     <div className={styles.skeleton}>
@@ -29,7 +27,6 @@ function ProfileSkeleton() {
   )
 }
 
-// ── Stat Card ──
 function StatCard({ icon, label, value, color }) {
   return (
     <div className={styles.statCard}>
@@ -44,7 +41,6 @@ function StatCard({ icon, label, value, color }) {
   )
 }
 
-// ── Main Profile Page ──
 export default function Profile() {
 
   const { setToken } = useContext(AuthenticationContext)
@@ -52,23 +48,24 @@ export default function Profile() {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const data = await fetchUserData()
-        setUser(data.decoded)
-      } catch {
-        // Token expired or invalid — logout
-        toast.error('Session expired. Please log in again.')
-        localStorage.removeItem('token')
-        setToken(null)
-        navigate('/login')
-      } finally {
-        setIsLoading(false)
-      }
+  // ✅ useCallback makes loadUser stable — safe to add to useEffect deps
+  const loadUser = useCallback(async () => {
+    try {
+      const data = await fetchUserData()
+      setUser(data.decoded)
+    } catch {
+      toast.error('Session expired. Please log in again.')
+      localStorage.removeItem('token')
+      setToken(null)
+      navigate('/login')
+    } finally {
+      setIsLoading(false)
     }
+  }, [navigate, setToken]) // ✅ navigate and setToken in deps
+
+  useEffect(() => {
     loadUser()
-  }, [])
+  }, [loadUser]) // ✅ loadUser is stable via useCallback
 
   function handleLogout() {
     localStorage.removeItem('token')
@@ -77,13 +74,11 @@ export default function Profile() {
     navigate('/login')
   }
 
-  // Get initials from name
   function getInitials(name) {
     if (!name) return '?'
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  // Format timestamp
   function formatDate(timestamp) {
     if (!timestamp) return 'N/A'
     return new Date(timestamp * 1000).toLocaleDateString('en-EG', {
@@ -94,15 +89,12 @@ export default function Profile() {
   return (
     <section className={styles.section}>
 
-      {/* ── Hero Banner ── */}
       <div className={styles.heroBanner}>
         <div className={styles.heroBannerInner}>
           {isLoading ? <ProfileSkeleton /> : (
             <div className={styles.heroContent}>
               <div className={styles.avatarWrapper}>
-                <div className={styles.avatar}>
-                  {getInitials(user?.name)}
-                </div>
+                <div className={styles.avatar}>{getInitials(user?.name)}</div>
                 <div className={styles.avatarBadge}>
                   <i className="fa-solid fa-circle-check" />
                 </div>
@@ -117,11 +109,7 @@ export default function Profile() {
                   Member since {formatDate(user?.iat)}
                 </p>
               </div>
-              <button
-                type="button"
-                className={styles.logoutHeroBtn}
-                onClick={handleLogout}
-              >
+              <button type="button" className={styles.logoutHeroBtn} onClick={handleLogout}>
                 <i className="fa-solid fa-arrow-right-from-bracket" /> Log Out
               </button>
             </div>
@@ -131,7 +119,6 @@ export default function Profile() {
 
       <div className={styles.content}>
 
-        {/* ── Stats Row ── */}
         <div className={styles.statsRow}>
           <StatCard icon="fa-bag-shopping" label="Total Orders" value="0" color="rgba(76,175,80,0.12)" />
           <StatCard icon="fa-heart" label="Wishlist Items" value="0" color="rgba(229,57,53,0.1)" />
@@ -139,10 +126,8 @@ export default function Profile() {
           <StatCard icon="fa-truck-fast" label="Deliveries" value="0" color="rgba(33,150,243,0.1)" />
         </div>
 
-        {/* ── Info Cards ── */}
         <div className={styles.cardsGrid}>
 
-          {/* Account Info */}
           <div className={styles.infoCard}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>
@@ -193,7 +178,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className={styles.infoCard}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>
@@ -228,7 +212,6 @@ export default function Profile() {
 
         </div>
 
-        {/* ── Danger Zone ── */}
         <div className={styles.dangerZone}>
           <div className={styles.dangerContent}>
             <div>
