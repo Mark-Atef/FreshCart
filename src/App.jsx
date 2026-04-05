@@ -17,6 +17,8 @@ import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { CartContextProvider } from './Context/CartContext'
 import { Toaster } from "react-hot-toast";
+import Checkout from './Components/Checkout/Checkout'
+import OrderSuccess from './Components/OrderSuccess/OrderSuccess'
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,8 @@ const myRouter = createBrowserRouter([
       { path: 'register', element: <Register /> },
       { path: 'profile', element: <ProtectedRoute><Profile /></ProtectedRoute> },
       { path: 'productDetailes/:id', element: <ProtectedRoute><ProductDetailes /></ProtectedRoute> },
+      { path: 'checkout', element: <ProtectedRoute><Checkout /></ProtectedRoute> },
+      { path: 'order-success', element: <ProtectedRoute><OrderSuccess /></ProtectedRoute> },
       { path: '*', element: <NotFound /> },
     ]
   },

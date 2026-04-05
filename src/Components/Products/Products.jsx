@@ -1,14 +1,15 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
+/** biome-ignore-all assist/source/organizeImports: intentional order */
 import { useCallback, useContext, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContext'
 import toast from 'react-hot-toast'
 import styles from './Products.module.css'
 
-// ── Fetch functions — OUTSIDE component, never recreated ──
+// ── Fetch functions — OUTSIDE component ──
 function getAllProducts() {
   return axios.get('https://ecommerce.routemisr.com/api/v1/products')
 }
@@ -17,7 +18,7 @@ function getAllCategories() {
   return axios.get('https://ecommerce.routemisr.com/api/v1/categories')
 }
 
-// ── Star Rating — pure display, no state ──
+// ── Star Rating ──
 function StarRating({ rating }) {
   return (
     <div className={styles.stars}>
@@ -52,13 +53,9 @@ function SkeletonCard() {
   )
 }
 
-// ── Product Card — no internal state that causes rerenders ──
+// ── Product Card ──
 function ProductCard({ product, onAddToCart, cartLoading }) {
   const navigate = useNavigate()
-
-  function handleCardClick() {
-    navigate(`/productDetailes/${product._id}`)
-  }
 
   async function handleAddToCart(e) {
     e.stopPropagation()
@@ -74,7 +71,7 @@ function ProductCard({ product, onAddToCart, cartLoading }) {
     <button
       type="button"
       className={styles.card}
-      onClick={handleCardClick}
+      onClick={() => navigate(`/productDetailes/${product._id}`)}
     >
       <div className={styles.imageWrapper}>
         <img
@@ -97,7 +94,6 @@ function ProductCard({ product, onAddToCart, cartLoading }) {
           </button>
         </div>
       </div>
-
       <div className={styles.body}>
         <span className={styles.category}>{product.category?.name}</span>
         <h3 className={styles.title}>{product.title}</h3>
@@ -115,9 +111,15 @@ export default function Products() {
 
   const { addToCart, cartLoading } = useContext(CartContext)
 
-  // ── Filters state ──
+  // ✅ useSearchParams reads ?category= and ?brand= from the URL
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // ── Read initial values from URL query params ──
   const [search, setSearch] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const selectedCategory = useMemo(
+    () => searchParams.get('category') ?? 'all',
+    [searchParams]
+  )
   const [sortBy, setSortBy] = useState('default')
   const [priceRange, setPriceRange] = useState('all')
 
@@ -129,7 +131,7 @@ export default function Products() {
     gcTime: 10 * 60 * 1000,
   })
 
-  // ── Fetch categories for filter ──
+  // ── Fetch categories for filter dropdown ──
   const { data: categoriesData } = useQuery({
     queryKey: ['allCategories'],
     queryFn: getAllCategories,
@@ -138,18 +140,28 @@ export default function Products() {
   })
 
   const allProducts = useMemo(() => productsData?.data?.data ?? [], [productsData])
-  const allCategories = categoriesData?.data?.data ?? []
+  const allCategories = useMemo(() => categoriesData?.data?.data ?? [], [categoriesData])
 
-  // ── useCallback — stable reference, ProductCard won't rerender due to this ──
+  // ✅ When category filter changes, sync it to the URL
+  function handleCategoryChange(value) {
+    const nextParams = new URLSearchParams(searchParams)
+    if (value === 'all') {
+      nextParams.delete('category')
+    } else {
+      nextParams.set('category', value)
+    }
+    setSearchParams(nextParams)
+  }
+
+  // ── Stable addToCart reference ──
   const handleAddToCart = useCallback((productId) => {
     return addToCart(productId)
   }, [addToCart])
 
-  // ── useMemo — only recalculates when filters or products change ──
+  // ── Filter + sort with useMemo ──
   const filteredProducts = useMemo(() => {
     let result = [...allProducts]
 
-    // Search filter
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter(p =>
@@ -158,21 +170,15 @@ export default function Products() {
       )
     }
 
-    // Category filter
     if (selectedCategory !== 'all') {
       result = result.filter(p => p.category?._id === selectedCategory)
     }
 
-    // Price range filter
     if (priceRange !== 'all') {
       const [min, max] = priceRange.split('-').map(Number)
-      result = result.filter(p => {
-        if (max) return p.price >= min && p.price <= max
-        return p.price >= min // "500+" case
-      })
+      result = result.filter(p => max ? p.price >= min && p.price <= max : p.price >= min)
     }
 
-    // Sort
     if (sortBy === 'price-asc') result.sort((a, b) => a.price - b.price)
     else if (sortBy === 'price-desc') result.sort((a, b) => b.price - a.price)
     else if (sortBy === 'rating') result.sort((a, b) => b.ratingsAverage - a.ratingsAverage)
@@ -181,10 +187,15 @@ export default function Products() {
     return result
   }, [allProducts, search, selectedCategory, sortBy, priceRange])
 
-  // ── Reset all filters ──
+  // ── Active category name for display ──
+  const activeCategoryName = useMemo(() => {
+    if (selectedCategory === 'all') return null
+    return allCategories.find(c => c._id === selectedCategory)?.name ?? null
+  }, [selectedCategory, allCategories])
+
   function handleReset() {
     setSearch('')
-    setSelectedCategory('all')
+    handleCategoryChange('all')
     setSortBy('default')
     setPriceRange('all')
   }
@@ -197,7 +208,19 @@ export default function Products() {
       {/* ── Page Header ── */}
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={styles.pageTitle}>All Products</h1>
+          {/* ✅ Show active category name as breadcrumb when coming from categories */}
+          {activeCategoryName && (
+            <div className={styles.breadcrumb}>
+              <button type="button" className={styles.breadcrumbLink} onClick={handleReset}>
+                All Products
+              </button>
+              <i className="fa-solid fa-chevron-right" />
+              <span className={styles.breadcrumbCurrent}>{activeCategoryName}</span>
+            </div>
+          )}
+          <h1 className={styles.pageTitle}>
+            {activeCategoryName ?? 'All Products'}
+          </h1>
           <p className={styles.pageSubtitle}>
             {isLoading
               ? 'Loading products...'
@@ -209,7 +232,6 @@ export default function Products() {
       {/* ── Search + Filters Bar ── */}
       <div className={styles.filtersBar}>
 
-        {/* Search */}
         <div className={styles.searchWrapper}>
           <i className="fa-solid fa-magnifying-glass" />
           <input
@@ -231,11 +253,11 @@ export default function Products() {
           )}
         </div>
 
-        {/* Category filter */}
+        {/* ✅ Category select — shows currently active category from URL */}
         <select
           className={styles.filterSelect}
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          onChange={(e) => handleCategoryChange(e.target.value)}
           aria-label="Filter by category"
         >
           <option value="all">All Categories</option>
@@ -244,7 +266,6 @@ export default function Products() {
           ))}
         </select>
 
-        {/* Price range */}
         <select
           className={styles.filterSelect}
           value={priceRange}
@@ -259,7 +280,6 @@ export default function Products() {
           <option value="1000-999999">Over 1000 EGP</option>
         </select>
 
-        {/* Sort */}
         <select
           className={styles.filterSelect}
           value={sortBy}
@@ -273,19 +293,24 @@ export default function Products() {
           <option value="name">Name A–Z</option>
         </select>
 
-        {/* Reset */}
         {hasActiveFilters && (
-          <button
-            type="button"
-            className={styles.resetBtn}
-            onClick={handleReset}
-          >
+          <button type="button" className={styles.resetBtn} onClick={handleReset}>
             <i className="fa-solid fa-rotate-left" /> Reset
           </button>
         )}
       </div>
 
-      {/* ── Error ── */}
+      {/* ── Active category pill ── */}
+      {activeCategoryName && (
+        <div className={styles.activePill}>
+          <i className="fa-solid fa-layer-group" />
+          {activeCategoryName}
+          <button type="button" className={styles.pillRemove} onClick={handleReset} aria-label="Remove filter">
+            <i className="fa-solid fa-xmark" />
+          </button>
+        </div>
+      )}
+
       {isError && (
         <div className={styles.errorBox}>
           <i className="fa-solid fa-circle-exclamation" />
@@ -293,7 +318,6 @@ export default function Products() {
         </div>
       )}
 
-      {/* ── No results ── */}
       {!isLoading && filteredProducts.length === 0 && !isError && (
         <div className={styles.noResults}>
           <i className="fa-solid fa-box-open" />
@@ -305,7 +329,6 @@ export default function Products() {
         </div>
       )}
 
-      {/* ── Grid ── */}
       <div className={styles.grid}>
         {isLoading
           ? Array.from({ length: 8 }, (_, i) => <SkeletonCard key={`skeleton-${i}`} />)
