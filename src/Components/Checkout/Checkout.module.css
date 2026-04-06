@@ -1,17 +1,14 @@
 /* ============================================
    Checkout Page
 ============================================ */
-/** biome-ignore-all lint/complexity/noImportantStyles: <> */
 
 .section {
   padding: 2rem 2rem 5rem;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
-  margin-top: 5rem;
 }
 
-/* ── Back link ── */
 .backLink {
   display: inline-flex;
   align-items: center;
@@ -22,7 +19,6 @@
   margin-bottom: 1.25rem;
   transition: color 0.2s ease;
 }
-
 .backLink:hover { color: #4caf50; }
 
 .pageTitle {
@@ -33,7 +29,6 @@
   margin-bottom: 2rem;
 }
 
-/* ── Loading ── */
 .loadingWrapper {
   display: flex;
   flex-direction: column;
@@ -45,36 +40,45 @@
   font-size: 0.9rem;
 }
 
-/* ── Step Bar ── */
 .stepBar {
   display: flex;
-  align-items: center;
-  margin-bottom: 2.5rem;
+  align-items: flex-start;
+  margin-bottom: 3rem;
 }
 
+/* Each item = wrapper + line side by side */
 .stepItem {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex: 1;
 }
 
-.stepItem:last-child { flex: 0; }
+/* Last item has no line so doesn't need to expand */
+.stepItem:last-child {
+  flex: 0 0 auto;
+}
+
+/* Stack circle and label vertically */
+.stepCircleWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
 
 .stepCircle {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid #e0e0e0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   color: #ccc;
   background: white;
-  flex-shrink: 0;
   transition: all 0.3s ease;
-  position: relative;
-  z-index: 1;
 }
 
 .stepActive {
@@ -94,39 +98,31 @@
   font-weight: 600;
   color: #bbb;
   white-space: nowrap;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  text-align: center;
 }
 
-.stepLabelActive { color: #2e7d32; }
-
-.stepItem {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
+.stepLabelActive {
+  color: #2e7d32;
 }
 
-.stepItem:last-child { flex: 0; }
-
-/* Add label below circle */
-.stepCircle {
-  position: relative;
-}
-
-/* Line between steps */
+/* The line:
+   - flex: 1 so it fills remaining space between steps
+   - margin-top: 22px aligns it to the vertical center of the 44px circle
+   - margin-left/right: 6px for breathing room
+*/
 .stepLine {
   flex: 1;
   height: 2px;
   background: #e0e0e0;
-  margin: 0 4px;
+  margin-top: 22px;
+  margin-left: 6px;
+  margin-right: 6px;
   transition: background 0.3s ease;
-  margin-bottom: 20px;
 }
 
-.stepLineDone { background: #4caf50; }
+.stepLineDone {
+  background: #4caf50;
+}
 
 /* ── Main Grid ── */
 .checkoutGrid {
@@ -136,7 +132,6 @@
   align-items: start;
 }
 
-/* ── Form Side ── */
 .formSide {
   display: flex;
   flex-direction: column;
@@ -166,7 +161,6 @@
   align-items: center;
   gap: 0.6rem;
 }
-
 .stepTitle i { color: #4caf50; }
 
 /* ── Form Grid ── */
@@ -178,7 +172,11 @@
 
 .fieldFull { grid-column: 1 / -1; }
 
-.field { display: flex; flex-direction: column; gap: 0.4rem; }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
 
 .label {
   font-size: 0.78rem;
@@ -216,17 +214,15 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
 }
-
 .input::placeholder { color: #c5c5c5; }
-
 .input:focus {
   border-color: #4caf50;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.10);
 }
-
 .inputWrapper:focus-within > i:first-child { color: #4caf50; }
 
+/* Red border only when BOTH error exists AND field was touched */
 .field:has(.error) .input {
   border-color: #e53935;
   background: #fffafa;
@@ -241,9 +237,14 @@
   border-radius: 6px;
   border-left: 3px solid #e53935;
   width: fit-content;
+  animation: errorIn 0.2s ease both;
 }
 
-/* Card icons inside input */
+@keyframes errorIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .cardIcons {
   position: absolute;
   right: 0.85rem;
@@ -279,28 +280,20 @@
   transition: all 0.2s ease;
   width: 100%;
 }
-
 .methodBtn i:first-child {
   font-size: 1.1rem;
   color: #999;
   width: 20px;
   text-align: center;
 }
-
-.methodBtn:hover {
-  border-color: #4caf50;
-  background: #f0faf0;
-}
-
+.methodBtn:hover { border-color: #4caf50; background: #f0faf0; }
 .methodActive {
   border-color: #4caf50 !important;
   background: rgba(76, 175, 80, 0.06) !important;
   color: #2e7d32 !important;
 }
-
 .methodActive i:first-child { color: #4caf50 !important; }
 
-/* Cash/wallet info box */
 .cashNote {
   display: flex;
   gap: 0.9rem;
@@ -312,14 +305,11 @@
   color: #555;
   line-height: 1.6;
 }
-
 .cashNote i { color: #4caf50; font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
 .cashNote strong { color: #1a1a1a; }
 
 /* ── Review Step ── */
-.reviewSection {
-  margin-bottom: 1.5rem;
-}
+.reviewSection { margin-bottom: 1.5rem; }
 
 .reviewSectionTitle {
   font-size: 0.82rem;
@@ -332,7 +322,6 @@
   align-items: center;
   gap: 0.4rem;
 }
-
 .reviewSectionTitle i { color: #4caf50; }
 
 .reviewBox {
@@ -341,18 +330,9 @@
   border-radius: 12px;
   padding: 0.9rem 1.1rem;
 }
+.reviewLine { font-size: 0.9rem; color: #444; line-height: 1.7; }
 
-.reviewLine {
-  font-size: 0.9rem;
-  color: #444;
-  line-height: 1.7;
-}
-
-.reviewItems {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
+.reviewItems { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .reviewItem {
   display: flex;
@@ -376,7 +356,6 @@
 }
 
 .reviewItemInfo { flex: 1; min-width: 0; }
-
 .reviewItemTitle {
   font-size: 0.87rem;
   font-weight: 600;
@@ -387,15 +366,8 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 .reviewItemSub { font-size: 0.78rem; color: #aaa; margin-top: 2px; }
-
-.reviewItemTotal {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #2e7d32;
-  white-space: nowrap;
-}
+.reviewItemTotal { font-size: 0.9rem; font-weight: 800; color: #2e7d32; white-space: nowrap; }
 
 .reviewTotal {
   background: #fafafa;
@@ -408,13 +380,7 @@
   margin-top: 1rem;
 }
 
-.reviewTotalRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.88rem;
-  color: #666;
-}
-
+.reviewTotalRow { display: flex; justify-content: space-between; font-size: 0.88rem; color: #666; }
 .reviewTotalFinal {
   font-size: 1.05rem;
   font-weight: 900;
@@ -425,11 +391,7 @@
 }
 
 /* ── Nav Buttons ── */
-.navBtns {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
+.navBtns { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
 
 .prevBtn {
   display: flex;
@@ -446,11 +408,7 @@
   font-family: inherit;
   transition: all 0.2s ease;
 }
-
-.prevBtn:hover {
-  border-color: #4caf50;
-  color: #2e7d32;
-}
+.prevBtn:hover { border-color: #4caf50; color: #2e7d32; }
 
 .nextBtn {
   flex: 1;
@@ -470,20 +428,12 @@
   box-shadow: 0 4px 14px rgba(76, 175, 80, 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-
 .nextBtn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 22px rgba(76, 175, 80, 0.45);
 }
+.nextBtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.nextBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* ── Security note ── */
 .secureNote {
   display: flex;
   align-items: center;
@@ -492,14 +442,10 @@
   font-size: 0.78rem;
   color: #aaa;
 }
-
 .secureNote i { color: #4caf50; }
 
-/* ── Order Summary (right side) ── */
-.summarySide {
-  position: sticky;
-  top: 90px;
-}
+/* ── Summary (sticky right side) ── */
+.summarySide { position: sticky; top: 90px; }
 
 .summaryCard {
   background: white;
@@ -511,11 +457,7 @@
   gap: 1rem;
 }
 
-.summaryTitle {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #1a1a1a;
-}
+.summaryTitle { font-size: 1rem; font-weight: 800; color: #1a1a1a; }
 
 .summaryItems {
   display: flex;
@@ -526,19 +468,9 @@
   padding-right: 2px;
 }
 
-.summaryItem {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
+.summaryItem { display: flex; align-items: center; gap: 0.75rem; }
 
-.summaryItemImg {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-}
-
+.summaryItemImg { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
 .summaryItemImg img {
   width: 100%;
   height: 100%;
@@ -548,7 +480,6 @@
   border: 1px solid #f0f0f0;
   padding: 0.25rem;
 }
-
 .summaryItemQty {
   position: absolute;
   top: -6px;
@@ -566,7 +497,6 @@
 }
 
 .summaryItemInfo { flex: 1; min-width: 0; }
-
 .summaryItemTitle {
   font-size: 0.82rem;
   font-weight: 600;
@@ -578,7 +508,6 @@
   overflow: hidden;
   line-height: 1.4;
 }
-
 .summaryItemCat {
   font-size: 0.72rem;
   color: #4caf50;
@@ -586,34 +515,13 @@
   text-transform: uppercase;
   margin-top: 2px;
 }
-
-.summaryItemPrice {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #2e7d32;
-  white-space: nowrap;
-}
+.summaryItemPrice { font-size: 0.88rem; font-weight: 700; color: #2e7d32; white-space: nowrap; }
 
 .summaryDivider { height: 1px; background: #f0f0f0; }
-
 .summaryRows { display: flex; flex-direction: column; gap: 0.6rem; }
-
-.summaryRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.88rem;
-  color: #666;
-}
-
+.summaryRow { display: flex; justify-content: space-between; font-size: 0.88rem; color: #666; }
 .free { color: #4caf50; font-weight: 700; }
-
-.summaryTotal {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: #1a1a1a;
-}
+.summaryTotal { display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 900; color: #1a1a1a; }
 
 .freeShippingNote {
   display: flex;
@@ -637,7 +545,6 @@
 
 @media (max-width: 600px) {
   .section { padding: 1rem 1rem 4rem; }
-  .stepBar { overflow-x: auto; }
   .navBtns { flex-direction: column-reverse; }
   .prevBtn { width: 100%; justify-content: center; }
 }

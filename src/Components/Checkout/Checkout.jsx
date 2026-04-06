@@ -6,29 +6,55 @@ import toast from 'react-hot-toast'
 import { CartContext } from '../../Context/CartContext'
 import styles from './Checkout.module.css'
 
-// ── Step indicator ──
+// ════════════════════════════════════════════
+// BUG FIX 1 — Step Bar alignment
+//
+// OLD structure (broken):
+//   <div class="stepItem">          ← flex row
+//     <div class="stepCircle" />   ← circle
+//     <span class="stepLabel" />   ← label sits BESIDE circle in same row
+//     <div class="stepLine" />     ← line also in same row → misaligned
+//   </div>
+//
+// NEW structure (fixed):
+//   <div class="stepItem">              ← flex row
+//     <div class="stepCircleWrapper">   ← column: circle + label stacked
+//       <div class="stepCircle" />
+//       <span class="stepLabel" />
+//     </div>
+//     <div class="stepLine" />          ← line is a direct flex child, aligned with circles
+//   </div>
+// ════════════════════════════════════════════
 function StepBar({ currentStep }) {
   const steps = [
     { num: 1, label: 'Delivery', icon: 'fa-location-dot' },
     { num: 2, label: 'Payment', icon: 'fa-credit-card' },
     { num: 3, label: 'Review', icon: 'fa-circle-check' },
   ]
+
   return (
     <div className={styles.stepBar}>
       {steps.map((step, i) => (
         <div key={step.num} className={styles.stepItem}>
-          <div className={`${styles.stepCircle} ${currentStep >= step.num ? styles.stepActive : ''} ${currentStep > step.num ? styles.stepDone : ''}`}>
-            {currentStep > step.num
-              ? <i className="fa-solid fa-check" />
-              : <i className={`fa-solid ${step.icon}`} />
-            }
+
+          {/* Circle + label stacked vertically */}
+          <div className={styles.stepCircleWrapper}>
+            <div className={`${styles.stepCircle} ${currentStep >= step.num ? styles.stepActive : ''} ${currentStep > step.num ? styles.stepDone : ''}`}>
+              {currentStep > step.num
+                ? <i className="fa-solid fa-check" />
+                : <i className={`fa-solid ${step.icon}`} />
+              }
+            </div>
+            <span className={`${styles.stepLabel} ${currentStep >= step.num ? styles.stepLabelActive : ''}`}>
+              {step.label}
+            </span>
           </div>
-          <span className={`${styles.stepLabel} ${currentStep >= step.num ? styles.stepLabelActive : ''}`}>
-            {step.label}
-          </span>
+
+          {/* Connecting line — direct sibling of wrapper, not a child */}
           {i < steps.length - 1 && (
             <div className={`${styles.stepLine} ${currentStep > step.num ? styles.stepLineDone : ''}`} />
           )}
+
         </div>
       ))}
     </div>
@@ -110,16 +136,9 @@ function DeliveryStep({ formik }) {
           <label className={styles.label} htmlFor="fullName">Full Name</label>
           <div className={styles.inputWrapper}>
             <i className="fa-solid fa-user" />
-            <input
-              id="fullName"
-              name="fullName"
-              type="text"
-              placeholder="John Doe"
-              className={styles.input}
-              value={formik.values.fullName}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
+            <input id="fullName" name="fullName" type="text" placeholder="John Doe"
+              className={styles.input} value={formik.values.fullName}
+              onChange={formik.handleChange} onBlur={formik.handleBlur} />
           </div>
           {formik.errors.fullName && formik.touched.fullName && (
             <span className={styles.error}>{formik.errors.fullName}</span>
@@ -130,16 +149,9 @@ function DeliveryStep({ formik }) {
           <label className={styles.label} htmlFor="phone">Phone Number</label>
           <div className={styles.inputWrapper}>
             <i className="fa-solid fa-phone" />
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              placeholder="+20 1XX XXX XXXX"
-              className={styles.input}
-              value={formik.values.phone}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
+            <input id="phone" name="phone" type="tel" placeholder="+20 1XX XXX XXXX"
+              className={styles.input} value={formik.values.phone}
+              onChange={formik.handleChange} onBlur={formik.handleBlur} />
           </div>
           {formik.errors.phone && formik.touched.phone && (
             <span className={styles.error}>{formik.errors.phone}</span>
@@ -150,16 +162,9 @@ function DeliveryStep({ formik }) {
           <label className={styles.label} htmlFor="address">Street Address</label>
           <div className={styles.inputWrapper}>
             <i className="fa-solid fa-house" />
-            <input
-              id="address"
-              name="address"
-              type="text"
-              placeholder="123 Main Street, Apt 4B"
-              className={styles.input}
-              value={formik.values.address}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
+            <input id="address" name="address" type="text" placeholder="123 Main Street, Apt 4B"
+              className={styles.input} value={formik.values.address}
+              onChange={formik.handleChange} onBlur={formik.handleBlur} />
           </div>
           {formik.errors.address && formik.touched.address && (
             <span className={styles.error}>{formik.errors.address}</span>
@@ -170,16 +175,9 @@ function DeliveryStep({ formik }) {
           <label className={styles.label} htmlFor="city">City</label>
           <div className={styles.inputWrapper}>
             <i className="fa-solid fa-building" />
-            <input
-              id="city"
-              name="city"
-              type="text"
-              placeholder="Cairo"
-              className={styles.input}
-              value={formik.values.city}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
+            <input id="city" name="city" type="text" placeholder="Cairo"
+              className={styles.input} value={formik.values.city}
+              onChange={formik.handleChange} onBlur={formik.handleBlur} />
           </div>
           {formik.errors.city && formik.touched.city && (
             <span className={styles.error}>{formik.errors.city}</span>
@@ -190,16 +188,9 @@ function DeliveryStep({ formik }) {
           <label className={styles.label} htmlFor="postalCode">Postal Code</label>
           <div className={styles.inputWrapper}>
             <i className="fa-solid fa-envelope" />
-            <input
-              id="postalCode"
-              name="postalCode"
-              type="text"
-              placeholder="12345"
-              className={styles.input}
-              value={formik.values.postalCode}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
+            <input id="postalCode" name="postalCode" type="text" placeholder="12345"
+              className={styles.input} value={formik.values.postalCode}
+              onChange={formik.handleChange} onBlur={formik.handleBlur} />
           </div>
           {formik.errors.postalCode && formik.touched.postalCode && (
             <span className={styles.error}>{formik.errors.postalCode}</span>
@@ -210,15 +201,9 @@ function DeliveryStep({ formik }) {
           <label className={styles.label} htmlFor="notes">Delivery Notes (optional)</label>
           <div className={styles.inputWrapper}>
             <i className="fa-solid fa-note-sticky" />
-            <input
-              id="notes"
-              name="notes"
-              type="text"
-              placeholder="Leave at door, ring bell twice..."
-              className={styles.input}
-              value={formik.values.notes}
-              onChange={formik.handleChange}
-            />
+            <input id="notes" name="notes" type="text" placeholder="Leave at door, ring bell twice..."
+              className={styles.input} value={formik.values.notes}
+              onChange={formik.handleChange} />
           </div>
         </div>
 
@@ -229,13 +214,12 @@ function DeliveryStep({ formik }) {
 
 // ── Step 2: Payment ──
 function PaymentStep({ formik }) {
-  const [payMethod, setPayMethod] = useState('card')
-  const { setFieldValue } = formik
+  const [payMethod, setPayMethod] = useState(formik.values.paymentMethod || 'card')
 
-  // sync to formik
-  useEffect(() => {
-    setFieldValue('paymentMethod', payMethod)
-  }, [setFieldValue, payMethod])
+  function handleMethodChange(m) {
+    setPayMethod(m)
+    formik.setFieldValue('paymentMethod', m)
+  }
 
   return (
     <div className={styles.stepContent}>
@@ -243,7 +227,6 @@ function PaymentStep({ formik }) {
         <i className="fa-solid fa-credit-card" /> Payment Method
       </h2>
 
-      {/* Method selector */}
       <div className={styles.paymentMethods}>
         {[
           { id: 'card', label: 'Credit / Debit Card', icon: 'fa-credit-card' },
@@ -254,16 +237,17 @@ function PaymentStep({ formik }) {
             key={m.id}
             type="button"
             className={`${styles.methodBtn} ${payMethod === m.id ? styles.methodActive : ''}`}
-            onClick={() => setPayMethod(m.id)}
+            onClick={() => handleMethodChange(m.id)}
           >
             <i className={`fa-solid ${m.icon}`} />
             <span>{m.label}</span>
-            {payMethod === m.id && <i className="fa-solid fa-circle-check" style={{ marginLeft: 'auto', color: '#4caf50' }} />}
+            {payMethod === m.id && (
+              <i className="fa-solid fa-circle-check" style={{ marginLeft: 'auto', color: '#4caf50' }} />
+            )}
           </button>
         ))}
       </div>
 
-      {/* Card form */}
       {payMethod === 'card' && (
         <div className={styles.formGrid}>
 
@@ -272,15 +256,10 @@ function PaymentStep({ formik }) {
             <div className={styles.inputWrapper}>
               <i className="fa-solid fa-credit-card" />
               <input
-                id="cardNumber"
-                name="cardNumber"
-                type="text"
-                placeholder="1234 5678 9012 3456"
-                maxLength={19}
-                className={styles.input}
-                value={formik.values.cardNumber}
+                id="cardNumber" name="cardNumber" type="text"
+                placeholder="1234 5678 9012 3456" maxLength={19}
+                className={styles.input} value={formik.values.cardNumber}
                 onChange={(e) => {
-                  // Auto-format with spaces every 4 digits
                   const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
                   const formatted = raw.match(/.{1,4}/g)?.join(' ') ?? raw
                   formik.setFieldValue('cardNumber', formatted)
@@ -301,16 +280,9 @@ function PaymentStep({ formik }) {
             <label className={styles.label} htmlFor="cardName">Cardholder Name</label>
             <div className={styles.inputWrapper}>
               <i className="fa-solid fa-user" />
-              <input
-                id="cardName"
-                name="cardName"
-                type="text"
-                placeholder="JOHN DOE"
-                className={styles.input}
-                value={formik.values.cardName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
+              <input id="cardName" name="cardName" type="text" placeholder="JOHN DOE"
+                className={styles.input} value={formik.values.cardName}
+                onChange={formik.handleChange} onBlur={formik.handleBlur} />
             </div>
             {formik.errors.cardName && formik.touched.cardName && (
               <span className={styles.error}>{formik.errors.cardName}</span>
@@ -322,13 +294,8 @@ function PaymentStep({ formik }) {
             <div className={styles.inputWrapper}>
               <i className="fa-solid fa-calendar" />
               <input
-                id="expiry"
-                name="expiry"
-                type="text"
-                placeholder="MM / YY"
-                maxLength={7}
-                className={styles.input}
-                value={formik.values.expiry}
+                id="expiry" name="expiry" type="text" placeholder="MM / YY"
+                maxLength={7} className={styles.input} value={formik.values.expiry}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
                   const formatted = raw.length > 2 ? `${raw.slice(0, 2)} / ${raw.slice(2)}` : raw
@@ -346,17 +313,9 @@ function PaymentStep({ formik }) {
             <label className={styles.label} htmlFor="cvv">CVV</label>
             <div className={styles.inputWrapper}>
               <i className="fa-solid fa-lock" />
-              <input
-                id="cvv"
-                name="cvv"
-                type="password"
-                placeholder="•••"
-                maxLength={4}
-                className={styles.input}
-                value={formik.values.cvv}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
+              <input id="cvv" name="cvv" type="password" placeholder="•••"
+                maxLength={4} className={styles.input} value={formik.values.cvv}
+                onChange={formik.handleChange} onBlur={formik.handleBlur} />
             </div>
             {formik.errors.cvv && formik.touched.cvv && (
               <span className={styles.error}>{formik.errors.cvv}</span>
@@ -402,7 +361,6 @@ function ReviewStep({ formik, cartData }) {
         <i className="fa-solid fa-circle-check" /> Review Your Order
       </h2>
 
-      {/* Delivery summary */}
       <div className={styles.reviewSection}>
         <h4 className={styles.reviewSectionTitle}>
           <i className="fa-solid fa-location-dot" /> Delivery To
@@ -411,11 +369,12 @@ function ReviewStep({ formik, cartData }) {
           <p className={styles.reviewLine}><strong>{formik.values.fullName}</strong></p>
           <p className={styles.reviewLine}>{formik.values.address}, {formik.values.city}</p>
           <p className={styles.reviewLine}>{formik.values.phone}</p>
-          {formik.values.notes && <p className={styles.reviewLine} style={{ color: '#888' }}>Note: {formik.values.notes}</p>}
+          {formik.values.notes && (
+            <p className={styles.reviewLine} style={{ color: '#888' }}>Note: {formik.values.notes}</p>
+          )}
         </div>
       </div>
 
-      {/* Payment summary */}
       <div className={styles.reviewSection}>
         <h4 className={styles.reviewSectionTitle}>
           <i className="fa-solid fa-credit-card" /> Payment
@@ -429,7 +388,6 @@ function ReviewStep({ formik, cartData }) {
         </div>
       </div>
 
-      {/* Items */}
       <div className={styles.reviewSection}>
         <h4 className={styles.reviewSectionTitle}>
           <i className="fa-solid fa-box" /> Items ({items.length})
@@ -442,16 +400,18 @@ function ReviewStep({ formik, cartData }) {
                 <p className={styles.reviewItemTitle}>{item.product.title}</p>
                 <p className={styles.reviewItemSub}>Qty: {item.count} × {item.price} EGP</p>
               </div>
-              <span className={styles.reviewItemTotal}>{(item.price * item.count).toLocaleString()} EGP</span>
+              <span className={styles.reviewItemTotal}>
+                {(item.price * item.count).toLocaleString()} EGP
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Total */}
       <div className={styles.reviewTotal}>
         <div className={styles.reviewTotalRow}>
-          <span>Subtotal</span><span>{totalPrice.toLocaleString()} EGP</span>
+          <span>Subtotal</span>
+          <span>{totalPrice.toLocaleString()} EGP</span>
         </div>
         <div className={styles.reviewTotalRow}>
           <span>Delivery</span>
@@ -469,7 +429,9 @@ function ReviewStep({ formik, cartData }) {
   )
 }
 
-// ── Main Checkout Page ──
+// ════════════════════════════════════════════
+// Main Checkout Page
+// ════════════════════════════════════════════
 export default function Checkout() {
 
   const { getCart, clearCart } = useContext(CartContext)
@@ -484,7 +446,7 @@ export default function Checkout() {
     try {
       const data = await getCart()
       setCartData(data)
-      if ((data?.numOfCartItems ?? 0) === 0&& location.pathname === '/checkout') {
+      if ((data?.numOfCartItems ?? 0) === 0) {
         toast.error('Your cart is empty')
         navigate('/products')
       }
@@ -515,6 +477,7 @@ export default function Checkout() {
       expiry: '',
       cvv: '',
     },
+
     validate: (values) => {
       const errors = {}
       if (step === 1) {
@@ -525,24 +488,45 @@ export default function Checkout() {
         if (!values.postalCode) errors.postalCode = 'Postal code is required'
       }
       if (step === 2 && values.paymentMethod === 'card') {
-        if (!values.cardNumber || values.cardNumber.replace(/\s/g, '').length < 16) errors.cardNumber = 'Enter a valid 16-digit card number'
+        if (!values.cardNumber || values.cardNumber.replace(/\s/g, '').length < 16)
+          errors.cardNumber = 'Enter a valid 16-digit card number'
         if (!values.cardName) errors.cardName = 'Cardholder name is required'
         if (!values.expiry || values.expiry.length < 7) errors.expiry = 'Enter a valid expiry date'
         if (!values.cvv || values.cvv.length < 3) errors.cvv = 'Enter a valid CVV'
       }
       return errors
     },
-    onSubmit: async () => {
+
+    onSubmit: async (_values, { setTouched }) => {
       if (step < 3) {
+        // ════════════════════════════════════════════
+        // BUG FIX 2 — Red inputs on step 2
+        //
+        // PROBLEM: When advancing from step 1 → step 2,
+        // formik still holds all the touched state from step 1
+        // (fullName, phone, address, city, postalCode were all touched).
+        // The validate function now checks step 2 fields, but those
+        // touched fields have errors → red borders appear immediately.
+        //
+        // FIX: Call setTouched({}) before advancing to wipe all
+        // touched state. The user starts step 2 with a clean slate.
+        // ════════════════════════════════════════════
+        setTouched({})
         setStep(s => s + 1)
         return
       }
-      // Final submission
+
       setIsSubmitting(true)
       try {
-        // In production: call your order API here
-        // await axios.post('/api/orders', { ...formik.values, cartId: cartData.data._id })
-        await new Promise(r => setTimeout(r, 1500)) // simulate API call
+        // In production: replace with real order API call
+        // await axios.post('/api/v1/orders', {
+        //   shippingAddress: {
+        //     details: formik.values.address,
+        //     phone: formik.values.phone,
+        //     city: formik.values.city,
+        //   }
+        // }, { headers: { token: localStorage.getItem('token') } })
+        await new Promise(r => setTimeout(r, 1500))
         await clearCart()
         toast.success('Order placed successfully!')
         navigate('/order-success', { replace: true })
@@ -553,6 +537,12 @@ export default function Checkout() {
       }
     },
   })
+
+  // ── Also reset touched when going BACK ──
+  function handleBack() {
+    formik.setTouched({})
+    setStep(s => s - 1)
+  }
 
   if (isLoadingCart) {
     return (
@@ -568,19 +558,16 @@ export default function Checkout() {
   return (
     <section className={styles.section}>
 
-      {/* Back link */}
       <Link to="/cart" className={styles.backLink}>
         <i className="fa-solid fa-arrow-left" /> Back to Cart
       </Link>
 
       <h1 className={styles.pageTitle}>Checkout</h1>
 
-      {/* Step bar */}
       <StepBar currentStep={step} />
 
       <div className={styles.checkoutGrid}>
 
-        {/* Left — form */}
         <div className={styles.formSide}>
           <form onSubmit={formik.handleSubmit}>
 
@@ -588,40 +575,30 @@ export default function Checkout() {
             {step === 2 && <PaymentStep formik={formik} />}
             {step === 3 && <ReviewStep formik={formik} cartData={cartData} />}
 
-            {/* Navigation buttons */}
             <div className={styles.navBtns}>
               {step > 1 && (
-                <button
-                  type="button"
-                  className={styles.prevBtn}
-                  onClick={() => setStep(s => s - 1)}
-                >
+                <button type="button" className={styles.prevBtn} onClick={handleBack}>
                   <i className="fa-solid fa-arrow-left" /> Back
                 </button>
               )}
-
-              <button
-                type="submit"
-                className={styles.nextBtn}
-                disabled={isSubmitting}
-              >
+              <button type="submit" className={styles.nextBtn} disabled={isSubmitting}>
                 {isSubmitting && <i className="fa-solid fa-spinner fa-spin" />}
                 {step < 3 && !isSubmitting && <>Continue <i className="fa-solid fa-arrow-right" /></>}
-                {step === 3 && !isSubmitting && <><i className="fa-solid fa-lock" /> Place Order — {(totalPrice + delivery).toLocaleString()} EGP</>}
+                {step === 3 && !isSubmitting && (
+                  <><i className="fa-solid fa-lock" /> Place Order — {(totalPrice + delivery).toLocaleString()} EGP</>
+                )}
                 {isSubmitting && 'Placing order...'}
               </button>
             </div>
 
           </form>
 
-          {/* Security note */}
           <div className={styles.secureNote}>
             <i className="fa-solid fa-shield-halved" />
             <span>Your payment information is encrypted and secure</span>
           </div>
         </div>
 
-        {/* Right — order summary */}
         <div className={styles.summarySide}>
           <OrderSummary cartData={cartData} />
         </div>

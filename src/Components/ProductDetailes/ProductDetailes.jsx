@@ -65,6 +65,8 @@ export default function ProductDetailes() {
   const [quantity, setQuantity] = useState(1)
   const [wishlist, setWishlist] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
+  const [isBuyingNow, setIsBuyingNow] = useState(false)
+
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['productDetails', id],
@@ -103,6 +105,20 @@ export default function ProductDetailes() {
         </div>
       </section>
     )
+  }
+
+
+  async function handleBuyNow() {
+    setIsBuyingNow(true)
+    try {
+      await addToCart(product._id)           // Step 1: add to cart
+      toast.success('Added to cart!')        // Step 2: confirm
+      navigate('/checkout')                  // Step 3: navigate
+    } catch {
+      toast.error('Failed to add to cart. Please try again.')
+    } finally {
+      setIsBuyingNow(false)
+    }
   }
 
   return (
@@ -221,24 +237,28 @@ export default function ProductDetailes() {
               <button
                 type="button"
                 className={styles.buyNowBtn}
-                disabled={product.quantity === 0}
-                onClick={() => navigate('/checkout')}
+                onClick={handleBuyNow}
+                disabled={product.quantity === 0 || isBuyingNow || cartLoading}
               >
-                Buy Now
+                {isBuyingNow
+                  ? <><i className="fa-solid fa-spinner fa-spin" /> Adding to cart...</>
+                  : <><i className="fa-solid fa-bolt" /> Buy Now</>
+                }
               </button>
-            </div>
 
-            <div className={styles.deliveryInfo}>
-              <div className={styles.deliveryItem}>
-                <i className="fa-solid fa-truck-fast" />
-                <span>Free delivery on orders over 200 EGP</span>
-              </div>
-              <div className={styles.deliveryItem}>
-                <i className="fa-solid fa-rotate-left" />
-                <span>Easy 30-day returns</span>
-              </div>
-            </div>
 
+              <div className={styles.deliveryInfo}>
+                <div className={styles.deliveryItem}>
+                  <i className="fa-solid fa-truck-fast" />
+                  <span>Free delivery on orders over 200 EGP</span>
+                </div>
+                <div className={styles.deliveryItem}>
+                  <i className="fa-solid fa-rotate-left" />
+                  <span>Easy 30-day returns</span>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       )}
