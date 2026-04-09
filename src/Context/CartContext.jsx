@@ -1,13 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
 /** biome-ignore-all assist/source/organizeImports: <> */
 import axios from 'axios'
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState, useEffect, useCallback } from 'react'
 
 export const CartContext = createContext()
 
 const BASE_URL = 'https://ecommerce.routemisr.com/api/v1/cart'
 
-// Helper — always gets fresh token from localStorage
+// Helper — always gets fresh token from localStorage at call time
 function getHeaders() {
   return { token: localStorage.getItem('token') }
 }
@@ -17,8 +17,15 @@ export function CartContextProvider({ children }) {
   const [cartCount, setCartCount] = useState(0)
   const [cartLoading, setCartLoading] = useState(false)
 
-  // ── Add product to cart ──
-  async function addToCart(productId) {
+  const addToCart = useCallback(async (productId) => {
+    // FIX: Check token BEFORE API call — redirect handled by caller
+    const token = localStorage.getItem('token')
+    if (!token) {
+      const err = new Error('Login required')
+      err.type = 'unauthorized'
+      throw err
+    }
+
     setCartLoading(true)
     try {
       const { data } = await axios.post(
@@ -26,34 +33,28 @@ export function CartContextProvider({ children }) {
         { productId },
         { headers: getHeaders() }
       )
-      // Update cart count from response
       setCartCount(data.numOfCartItems)
       return data
     } catch (err) {
       console.error('Add to cart failed:', err.response?.data?.message)
-      throw err // re-throw so the component can show an error
+      throw err
     } finally {
       setCartLoading(false)
     }
-  }
+  }, []) // ← stable forever — getHeaders reads localStorage, not state
 
-  // ── Get user's cart ──
-  async function getCart() {
+  const getCart = useCallback(async () => {
     try {
-      const { data } = await axios.get(
-        BASE_URL,
-        { headers: getHeaders() }
-      )
+      const { data } = await axios.get(BASE_URL, { headers: getHeaders() })
       setCartCount(data.numOfCartItems)
       return data
     } catch (err) {
       console.error('Get cart failed:', err.response?.data?.message)
       throw err
     }
-  }
+  }, []) // ← stable forever
 
-  // ── Remove product from cart ──
-  async function removeFromCart(productId) {
+  const removeFromCart = useCallback(async (productId) => {
     try {
       const { data } = await axios.delete(
         `${BASE_URL}/${productId}`,
@@ -65,10 +66,9 @@ export function CartContextProvider({ children }) {
       console.error('Remove from cart failed:', err.response?.data?.message)
       throw err
     }
-  }
+  }, []) // ← stable forever
 
-  // ── Update product quantity ──
-  async function updateQuantity(productId, count) {
+  const updateQuantity = useCallback(async (productId, count) => {
     try {
       const { data } = await axios.put(
         `${BASE_URL}/${productId}`,
@@ -81,39 +81,42 @@ export function CartContextProvider({ children }) {
       console.error('Update quantity failed:', err.response?.data?.message)
       throw err
     }
-  }
+  }, []) // ← stable forever
 
-  // ── Clear entire cart ──
-  async function clearCart() {
+  const clearCart = useCallback(async () => {
     try {
-      const { data } = await axios.delete(
-        BASE_URL,
-        { headers: getHeaders() }
-      )
+      const { data } = await axios.delete(BASE_URL, { headers: getHeaders() })
       setCartCount(0)
       return data
     } catch (err) {
       console.error('Clear cart failed:', err.response?.data?.message)
       throw err
     }
-  }
+  }, []) // ← stable forever
 
+  // FIX for Bug 4 — reset cart count on logout
+  // Called by Navbar when user logs out
+  const resetCart = useCallback(() => {
+    setCartCount(0)
+  }, [])
 
-    useEffect(() => {
-      const token = localStorage.getItem('token')
-      if (!token) return // ← exit early, don't even try
+  // ── Silent startup cart load ──
+  // Loads cart count once on app mount if user is logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
 
-      async function loadInitialCart() {
-        try {
-          const { data } = await axios.get(BASE_URL, { headers: getHeaders() })
-          setCartCount(data.numOfCartItems)
-        } catch {
-          // silently fail — user will see empty cart
-        }
+    async function loadInitialCart() {
+      try {
+        const { data } = await axios.get(BASE_URL, { headers: getHeaders() })
+        setCartCount(data.numOfCartItems ?? 0)
+      } catch {
+        // Silently fail — user sees 0 badge, not a crash
       }
+    }
 
-      loadInitialCart()
-    }, []) // ← runs once on app start
+    loadInitialCart()
+  }, [])
 
   return (
     <CartContext.Provider value={{
@@ -122,6 +125,7 @@ export function CartContextProvider({ children }) {
       removeFromCart,
       updateQuantity,
       clearCart,
+      resetCart,   // ← exposed for Navbar logout
       cartCount,
       cartLoading,
     }}>

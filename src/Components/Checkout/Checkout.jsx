@@ -1,30 +1,12 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import toast from 'react-hot-toast'
 import { CartContext } from '../../Context/CartContext'
 import styles from './Checkout.module.css'
 
-// ════════════════════════════════════════════
-// BUG FIX 1 — Step Bar alignment
-//
-// OLD structure (broken):
-//   <div class="stepItem">          ← flex row
-//     <div class="stepCircle" />   ← circle
-//     <span class="stepLabel" />   ← label sits BESIDE circle in same row
-//     <div class="stepLine" />     ← line also in same row → misaligned
-//   </div>
-//
-// NEW structure (fixed):
-//   <div class="stepItem">              ← flex row
-//     <div class="stepCircleWrapper">   ← column: circle + label stacked
-//       <div class="stepCircle" />
-//       <span class="stepLabel" />
-//     </div>
-//     <div class="stepLine" />          ← line is a direct flex child, aligned with circles
-//   </div>
-// ════════════════════════════════════════════
+// ── Step Bar ──
 function StepBar({ currentStep }) {
   const steps = [
     { num: 1, label: 'Delivery', icon: 'fa-location-dot' },
@@ -36,8 +18,6 @@ function StepBar({ currentStep }) {
     <div className={styles.stepBar}>
       {steps.map((step, i) => (
         <div key={step.num} className={styles.stepItem}>
-
-          {/* Circle + label stacked vertically */}
           <div className={styles.stepCircleWrapper}>
             <div className={`${styles.stepCircle} ${currentStep >= step.num ? styles.stepActive : ''} ${currentStep > step.num ? styles.stepDone : ''}`}>
               {currentStep > step.num
@@ -49,12 +29,9 @@ function StepBar({ currentStep }) {
               {step.label}
             </span>
           </div>
-
-          {/* Connecting line — direct sibling of wrapper, not a child */}
           {i < steps.length - 1 && (
             <div className={`${styles.stepLine} ${currentStep > step.num ? styles.stepLineDone : ''}`} />
           )}
-
         </div>
       ))}
     </div>
@@ -71,7 +48,6 @@ function OrderSummary({ cartData }) {
   return (
     <div className={styles.summaryCard}>
       <h3 className={styles.summaryTitle}>Order Summary</h3>
-
       <div className={styles.summaryItems}>
         {items.map(item => (
           <div key={item.product._id} className={styles.summaryItem}>
@@ -89,9 +65,7 @@ function OrderSummary({ cartData }) {
           </div>
         ))}
       </div>
-
       <div className={styles.summaryDivider} />
-
       <div className={styles.summaryRows}>
         <div className={styles.summaryRow}>
           <span>Subtotal</span>
@@ -104,14 +78,11 @@ function OrderSummary({ cartData }) {
           </span>
         </div>
       </div>
-
       <div className={styles.summaryDivider} />
-
       <div className={styles.summaryTotal}>
         <span>Total</span>
         <span>{total.toLocaleString()} EGP</span>
       </div>
-
       {totalPrice < 200 && (
         <div className={styles.freeShippingNote}>
           <i className="fa-solid fa-truck-fast" />
@@ -129,7 +100,6 @@ function DeliveryStep({ formik }) {
       <h2 className={styles.stepTitle}>
         <i className="fa-solid fa-location-dot" /> Delivery Information
       </h2>
-
       <div className={styles.formGrid}>
 
         <div className={styles.field}>
@@ -233,9 +203,7 @@ function PaymentStep({ formik }) {
           { id: 'cash', label: 'Cash on Delivery', icon: 'fa-money-bill-wave' },
           { id: 'wallet', label: 'Digital Wallet', icon: 'fa-wallet' },
         ].map(m => (
-          <button
-            key={m.id}
-            type="button"
+          <button key={m.id} type="button"
             className={`${styles.methodBtn} ${payMethod === m.id ? styles.methodActive : ''}`}
             onClick={() => handleMethodChange(m.id)}
           >
@@ -255,8 +223,7 @@ function PaymentStep({ formik }) {
             <label className={styles.label} htmlFor="cardNumber">Card Number</label>
             <div className={styles.inputWrapper}>
               <i className="fa-solid fa-credit-card" />
-              <input
-                id="cardNumber" name="cardNumber" type="text"
+              <input id="cardNumber" name="cardNumber" type="text"
                 placeholder="1234 5678 9012 3456" maxLength={19}
                 className={styles.input} value={formik.values.cardNumber}
                 onChange={(e) => {
@@ -293,8 +260,7 @@ function PaymentStep({ formik }) {
             <label className={styles.label} htmlFor="expiry">Expiry Date</label>
             <div className={styles.inputWrapper}>
               <i className="fa-solid fa-calendar" />
-              <input
-                id="expiry" name="expiry" type="text" placeholder="MM / YY"
+              <input id="expiry" name="expiry" type="text" placeholder="MM / YY"
                 maxLength={7} className={styles.input} value={formik.values.expiry}
                 onChange={(e) => {
                   const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
@@ -344,7 +310,6 @@ function PaymentStep({ formik }) {
           </div>
         </div>
       )}
-
     </div>
   )
 }
@@ -362,9 +327,7 @@ function ReviewStep({ formik, cartData }) {
       </h2>
 
       <div className={styles.reviewSection}>
-        <h4 className={styles.reviewSectionTitle}>
-          <i className="fa-solid fa-location-dot" /> Delivery To
-        </h4>
+        <h4 className={styles.reviewSectionTitle}><i className="fa-solid fa-location-dot" /> Delivery To</h4>
         <div className={styles.reviewBox}>
           <p className={styles.reviewLine}><strong>{formik.values.fullName}</strong></p>
           <p className={styles.reviewLine}>{formik.values.address}, {formik.values.city}</p>
@@ -376,9 +339,7 @@ function ReviewStep({ formik, cartData }) {
       </div>
 
       <div className={styles.reviewSection}>
-        <h4 className={styles.reviewSectionTitle}>
-          <i className="fa-solid fa-credit-card" /> Payment
-        </h4>
+        <h4 className={styles.reviewSectionTitle}><i className="fa-solid fa-credit-card" /> Payment</h4>
         <div className={styles.reviewBox}>
           <p className={styles.reviewLine}>
             {formik.values.paymentMethod === 'card' && `Card ending in ${formik.values.cardNumber.slice(-4)}`}
@@ -389,9 +350,7 @@ function ReviewStep({ formik, cartData }) {
       </div>
 
       <div className={styles.reviewSection}>
-        <h4 className={styles.reviewSectionTitle}>
-          <i className="fa-solid fa-box" /> Items ({items.length})
-        </h4>
+        <h4 className={styles.reviewSectionTitle}><i className="fa-solid fa-box" /> Items ({items.length})</h4>
         <div className={styles.reviewItems}>
           {items.map(item => (
             <div key={item.product._id} className={styles.reviewItem}>
@@ -424,7 +383,6 @@ function ReviewStep({ formik, cartData }) {
           <span>{(totalPrice + delivery).toLocaleString()} EGP</span>
         </div>
       </div>
-
     </div>
   )
 }
@@ -442,40 +400,54 @@ export default function Checkout() {
   const [isLoadingCart, setIsLoadingCart] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const isMounted = useRef(true)
+  const orderPlaced = useRef(false) // ← prevents empty-cart redirect after order
+
+  useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
   const loadCart = useCallback(async () => {
     try {
       const data = await getCart()
+
+      // Only update state if still mounted
+      if (!isMounted.current) return
+
       setCartData(data)
-      if ((data?.numOfCartItems ?? 0) === 0) {
+
+      if ((data?.numOfCartItems ?? 0) === 0 && !orderPlaced.current) {
         toast.error('Your cart is empty')
         navigate('/products')
       }
     } catch {
-      toast.error('Failed to load cart')
-      navigate('/cart')
+      // Only navigate if still mounted (prevents redirect after order placed)
+      if (isMounted.current && !orderPlaced.current) {
+        toast.error('Failed to load cart')
+        navigate('/cart')
+      }
     } finally {
-      setIsLoadingCart(false)
+      if (isMounted.current) {
+        setIsLoadingCart(false)
+      }
     }
   }, [getCart, navigate])
 
-  useEffect(() => { loadCart() }, [loadCart])
+  useEffect(() => {
+    loadCart()
+  }, [loadCart])
 
   const totalPrice = cartData?.data?.totalCartPrice ?? 0
   const delivery = totalPrice >= 200 ? 0 : 30
 
   const formik = useFormik({
     initialValues: {
-      fullName: '',
-      phone: '',
-      address: '',
-      city: '',
-      postalCode: '',
-      notes: '',
+      fullName: '', phone: '', address: '', city: '', postalCode: '', notes: '',
       paymentMethod: 'card',
-      cardNumber: '',
-      cardName: '',
-      expiry: '',
-      cvv: '',
+      cardNumber: '', cardName: '', expiry: '', cvv: '',
     },
 
     validate: (values) => {
@@ -499,18 +471,7 @@ export default function Checkout() {
 
     onSubmit: async (_values, { setTouched }) => {
       if (step < 3) {
-        // ════════════════════════════════════════════
-        // BUG FIX 2 — Red inputs on step 2
-        //
-        // PROBLEM: When advancing from step 1 → step 2,
-        // formik still holds all the touched state from step 1
-        // (fullName, phone, address, city, postalCode were all touched).
-        // The validate function now checks step 2 fields, but those
-        // touched fields have errors → red borders appear immediately.
-        //
-        // FIX: Call setTouched({}) before advancing to wipe all
-        // touched state. The user starts step 2 with a clean slate.
-        // ════════════════════════════════════════════
+        // ✅ Clear touched state before next step — prevents premature red borders
         setTouched({})
         setStep(s => s + 1)
         return
@@ -518,19 +479,18 @@ export default function Checkout() {
 
       setIsSubmitting(true)
       try {
-        // In production: replace with real order API call
-        // await axios.post('/api/v1/orders', {
-        //   shippingAddress: {
-        //     details: formik.values.address,
-        //     phone: formik.values.phone,
-        //     city: formik.values.city,
-        //   }
-        // }, { headers: { token: localStorage.getItem('token') } })
+        // Simulate API call — replace with real order API in production
         await new Promise(r => setTimeout(r, 1500))
+
+        // ✅ Mark order as placed BEFORE calling clearCart
+        // This prevents the empty-cart check in loadCart from firing
+        orderPlaced.current = true
+
         await clearCart()
         toast.success('Order placed successfully!')
         navigate('/order-success', { replace: true })
       } catch {
+        orderPlaced.current = false // reset on failure
         toast.error('Failed to place order. Please try again.')
       } finally {
         setIsSubmitting(false)
@@ -538,7 +498,6 @@ export default function Checkout() {
     },
   })
 
-  // ── Also reset touched when going BACK ──
   function handleBack() {
     formik.setTouched({})
     setStep(s => s - 1)

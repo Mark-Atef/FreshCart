@@ -20,7 +20,7 @@ export default function OrderSuccess() {
             <i className="fa-solid fa-truck-fast" />
             <div>
               <p className={styles.infoLabel}>Estimated Delivery</p>
-              <p className={styles.infoValue}>2 – 4 hours</p>
+              <p className={styles.infoValue}>2 - 3 working days</p>
             </div>
           </div>
           <div className={styles.infoItem}>

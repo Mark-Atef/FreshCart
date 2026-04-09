@@ -1,13 +1,15 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
 /** biome-ignore-all assist/source/organizeImports: intentional order */
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContext'
 import toast from 'react-hot-toast'
 import styles from './Products.module.css'
+import { useAddToCart } from '../../hooks/useAddToCart'
+
 
 // ── Fetch functions — OUTSIDE component ──
 function getAllProducts() {
@@ -84,7 +86,7 @@ function ProductCard({ product, onAddToCart, cartLoading }) {
           <button
             type="button"
             className={styles.addToCartBtn}
-            onClick={handleAddToCart}
+            onClick={() => handleAddToCart(product._id, product.title)}
             disabled={product.quantity === 0 || cartLoading}
           >
             {cartLoading
@@ -109,7 +111,9 @@ function ProductCard({ product, onAddToCart, cartLoading }) {
 // ── Main Products Page ──
 export default function Products() {
 
-  const { addToCart, cartLoading } = useContext(CartContext)
+  const { cartLoading } = useContext(CartContext)
+  const handleAddToCart = useAddToCart()
+
 
   // ✅ useSearchParams reads ?category= and ?brand= from the URL
   const [searchParams, setSearchParams] = useSearchParams()
@@ -153,10 +157,6 @@ export default function Products() {
     setSearchParams(nextParams)
   }
 
-  // ── Stable addToCart reference ──
-  const handleAddToCart = useCallback((productId) => {
-    return addToCart(productId)
-  }, [addToCart])
 
   // ── Filter + sort with useMemo ──
   const filteredProducts = useMemo(() => {

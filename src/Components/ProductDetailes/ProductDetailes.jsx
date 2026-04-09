@@ -6,6 +6,8 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import styles from './ProductDetailes.module.css'
 import { CartContext } from '../../Context/CartContext'
+import { useAddToCart } from '../../hooks/useAddToCart'
+
 
 // ── Fetch function — OUTSIDE component ──
 function fetchProductDetails(id) {
@@ -66,7 +68,7 @@ export default function ProductDetailes() {
   const [wishlist, setWishlist] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const [isBuyingNow, setIsBuyingNow] = useState(false)
-
+  const handleAddToCart = useAddToCart()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['productDetails', id],
@@ -81,15 +83,6 @@ export default function ProductDetailes() {
     ? [product.imageCover, ...(product.images ?? [])].filter(Boolean)
     : []
 
-  // Handle add to cart with toast
-  async function handleAddToCart() {
-    try {
-      await addToCart(product._id)
-      toast.success(`${product.title.split(' ').slice(0, 3).join(' ')} added to cart!`)
-    } catch {
-      toast.error('Failed to add to cart. Please try again.')
-    }
-  }
 
   if (isError) {
     return (
@@ -226,7 +219,7 @@ export default function ProductDetailes() {
               <button
                 type="button"
                 className={styles.addToCartBtn}
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart(product._id, product.title)}
                 disabled={product.quantity === 0 || cartLoading}
               >
                 {cartLoading

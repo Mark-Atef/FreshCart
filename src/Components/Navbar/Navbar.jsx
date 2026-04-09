@@ -1,47 +1,40 @@
 /** biome-ignore-all assist/source/organizeImports: intentional import order */
-import { useEffect, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { useContext, useEffect, useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import styles from './Navbar.module.css'
 import logo from '../../assets/images/freshcart-logo.svg'
 import { AuthenticationContext } from '../../Context/Authentication.jsx'
-import { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContext.jsx'
 
 export default function Navbar() {
 
-  const { token, setToken } = useContext(AuthenticationContext);
-  const { cartCount } = useContext(CartContext)
-  const navigate = useNavigate();
+  const { token, setToken } = useContext(AuthenticationContext)
 
+  // ✅ FIX Bug 4: import cartCount for badge + resetCart for logout
+  const { cartCount, resetCart } = useContext(CartContext)
+
+  const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
-  function closeMenu() {
-    setMenuOpen(false)
-  }
+  function closeMenu() { setMenuOpen(false) }
+  function toggleMenu() { setMenuOpen(prev => !prev) }
 
   function logout() {
-    localStorage.removeItem("token")
+    localStorage.removeItem('token')
     setToken(null)
-    navigate("/login")
+    // ✅ FIX: reset cartCount to 0 so badge disappears immediately on logout
+    resetCart()
+    navigate('/login')
     closeMenu()
   }
 
-  function toggleMenu() {
-    setMenuOpen(prev => !prev)
-  }
-
-  // Add shadow on scroll
   useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 10)
-    }
+    function handleScroll() { setScrolled(window.scrollY > 10) }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Lock body scroll when menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -62,11 +55,21 @@ export default function Navbar() {
           <li><NavLink to="/products" className={({ isActive }) => isActive ? styles.active : ''}>Products</NavLink></li>
           <li><NavLink to="/categories" className={({ isActive }) => isActive ? styles.active : ''}>Categories</NavLink></li>
           <li><NavLink to="/brands" className={({ isActive }) => isActive ? styles.active : ''}>Brands</NavLink></li>
-          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.active : ''}>Cart{cartCount > 0 && (
-            <span className={styles.cartBadge}>
-              {cartCount > 99 ? '99+' : cartCount}
-            </span>)}
-          </NavLink></li>
+
+          {/* ── Cart with live badge ── */}
+          <li>
+            <NavLink
+              to="/cart"
+              className={({ isActive }) => `${styles.cartLink} ${isActive ? styles.active : ''}`}
+            >
+              Cart
+              {cartCount > 0 && (
+                <span className={styles.cartBadge}>
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
+            </NavLink>
+          </li>
         </ul>
 
         {/* ── Desktop right side ── */}
@@ -85,17 +88,15 @@ export default function Navbar() {
 
           <div className={styles.navActions}>
             {token ? (
-              // ── Logged in ──
               <>
                 <Link to="/profile" className={styles.profileBtn}>
-                  <i className="fa-regular fa-circle-user"></i> Profile
+                  <i className="fa-regular fa-circle-user" /> Profile
                 </Link>
                 <button type="button" onClick={logout} className={styles.logoutBtn}>
-                  <i className="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                  <i className="fa-solid fa-arrow-right-from-bracket" /> Logout
                 </button>
               </>
             ) : (
-              // ── Not logged in ──
               <>
                 <Link to="/login" className={styles.loginBtn}>Login</Link>
                 <Link to="/register" className={styles.registerBtn}>Register</Link>
@@ -105,7 +106,7 @@ export default function Navbar() {
 
         </div>
 
-        {/* ── Hamburger (mobile only) ── */}
+        {/* ── Hamburger ── */}
         <button
           type="button"
           className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
@@ -113,9 +114,7 @@ export default function Navbar() {
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
         >
-          <span />
-          <span />
-          <span />
+          <span /><span /><span />
         </button>
 
       </nav>
@@ -131,16 +130,10 @@ export default function Navbar() {
         />
       )}
 
-      {/* ── Mobile drawer ── */}
+      {/* ── Mobile Drawer ── */}
       <div className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ''}`}>
 
-        {/* X close button */}
-        <button
-          type="button"
-          className={styles.closeBtn}
-          onClick={closeMenu}
-          aria-label="Close menu"
-        >
+        <button type="button" className={styles.closeBtn} onClick={closeMenu} aria-label="Close menu">
           <i className="fa-solid fa-xmark" />
         </button>
 
@@ -149,26 +142,33 @@ export default function Navbar() {
           <li><NavLink to="/products" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-box" /> Products</NavLink></li>
           <li><NavLink to="/categories" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-layer-group" /> Categories</NavLink></li>
           <li><NavLink to="/brands" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-tag" /> Brands</NavLink></li>
-          <li><NavLink to="/cart" className={({ isActive }) => isActive ? styles.mobileActive : ''} onClick={closeMenu}><i className="fa-solid fa-cart-shopping" /> Cart               {cartCount > 0 && (
-            <span className={styles.mobileBadge}>{cartCount > 99 ? '99+' : cartCount}</span>
-          )}</NavLink></li>
+          <li>
+            <NavLink
+              to="/cart"
+              className={({ isActive }) => `${styles.mobileCartLink} ${isActive ? styles.mobileActive : ''}`}
+              onClick={closeMenu}
+            >
+              <i className="fa-solid fa-cart-shopping" /> Cart
+              {cartCount > 0 && (
+                <span className={styles.mobileBadge}>{cartCount > 99 ? '99+' : cartCount}</span>
+              )}
+            </NavLink>
+          </li>
         </ul>
 
         <div className={styles.mobileDivider} />
 
         <div className={styles.mobileActions}>
           {token ? (
-            // ── Logged in ──
             <>
               <Link to="/profile" className={styles.mobileProfileBtn} onClick={closeMenu}>
-                <i className="fa-regular fa-circle-user"></i> Profile
+                <i className="fa-regular fa-circle-user" /> Profile
               </Link>
               <button type="button" onClick={logout} className={styles.mobileLogoutBtn}>
-                <i className="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                <i className="fa-solid fa-arrow-right-from-bracket" /> Logout
               </button>
             </>
           ) : (
-            // ── Not logged in ──
             <>
               <Link to="/login" className={styles.mobileLoginBtn} onClick={closeMenu}>Login</Link>
               <Link to="/register" className={styles.mobileRegisterBtn} onClick={closeMenu}>Register</Link>
