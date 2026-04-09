@@ -10,7 +10,7 @@ export default function Navbar() {
 
   const { token, setToken } = useContext(AuthenticationContext)
 
-  // ✅ FIX Bug 4: import cartCount for badge + resetCart for logout
+  // FIX Bug 4: import cartCount for badge + resetCart for logout
   const { cartCount, resetCart } = useContext(CartContext)
 
   const navigate = useNavigate()
@@ -23,7 +23,7 @@ export default function Navbar() {
   function logout() {
     localStorage.removeItem('token')
     setToken(null)
-    // ✅ FIX: reset cartCount to 0 so badge disappears immediately on logout
+    // FIX: reset cartCount to 0 so badge disappears immediately on logout
     resetCart()
     navigate('/login')
     closeMenu()

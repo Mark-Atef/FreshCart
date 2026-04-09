@@ -1,4 +1,5 @@
 // src/hooks/useAddToCart.js
+/** biome-ignore-all assist/source/organizeImports: <> */
 //
 // ════════════════════════════════════════════════════════════
 // FIX Bug 3 — Add to cart when not logged in
@@ -40,7 +41,7 @@ export function useAddToCart() {
       return true
     } catch (err) {
       if (err?.type === 'unauthorized') {
-        // ✅ Not logged in → redirect to login, save current page
+        // Not logged in → redirect to login, save current page
         toast('Please log in to add items to your cart', {
           icon: '🔐',
           style: {

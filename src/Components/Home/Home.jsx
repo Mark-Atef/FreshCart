@@ -6,7 +6,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useContext } from 'react'
 import axios from 'axios'
-import toast from 'react-hot-toast'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -18,6 +17,8 @@ import groceryBanner from '../../assets/images/grocery-banner.png'
 import groceryBanner2 from '../../assets/images/grocery-banner-2.jpeg'
 import { AuthenticationContext } from '../../Context/Authentication.jsx'
 import { CartContext } from '../../Context/CartContext.jsx'
+import { useAddToCart } from '../../hooks/useAddToCart'
+
 
 // ── Fetch functions — outside component ──
 function getFeaturedProducts() {
@@ -73,18 +74,10 @@ function StarRating({ rating }) {
 
 // ── Product Card ──
 //  addToCart and cartLoading received as PROPS
-function ProductCard({ product, addToCart, cartLoading }) {
+function ProductCard({ product, cartLoading }) {
   const navigate = useNavigate()
+  const handleAddToCart = useAddToCart()
 
-  async function handleAddToCart(e) {
-    e.stopPropagation() // prevent card click from navigating
-    try {
-      await addToCart(product._id)
-      toast.success(`${product.title.split(' ').slice(0, 3).join(' ')} added to cart!`)
-    } catch {
-      toast.error('Failed to add to cart. Please try again.')
-    }
-  }
 
   return (
     <button
@@ -98,7 +91,7 @@ function ProductCard({ product, addToCart, cartLoading }) {
           <button
             type="button"
             className={styles.addToCartBtn}
-            onClick={handleAddToCart}
+            onClick={() => handleAddToCart(product._id, product.title)}
             disabled={product.quantity === 0 || cartLoading}
           >
             {cartLoading
