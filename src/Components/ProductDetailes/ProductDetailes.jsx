@@ -8,7 +8,6 @@ import styles from './ProductDetailes.module.css'
 import { CartContext } from '../../Context/CartContext'
 import { useAddToCart } from '../../hooks/useAddToCart'
 
-
 // ── Fetch function — OUTSIDE component ──
 function fetchProductDetails(id) {
   return axios.get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
@@ -61,13 +60,20 @@ function ProductDetailSkeleton() {
 // ── Main ProductDetailes Page ──
 export default function ProductDetailes() {
 
+  // ── cartLoading from context — used for spinner/disabled state ──
   const { addToCart, cartLoading } = useContext(CartContext)
+
   const { id } = useParams()
   const navigate = useNavigate()
   const [quantity, setQuantity] = useState(1)
   const [wishlist, setWishlist] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const [isBuyingNow, setIsBuyingNow] = useState(false)
+
+  // ✅ useAddToCart hook for the Add to Cart button
+  // Handles: auth check → redirect if not logged in, OR success toast if logged in
+  // ProductDetails IS a protected route so user is always logged in here,
+  // but using the hook is still correct practice for consistency
   const handleAddToCart = useAddToCart()
 
   const { data, isLoading, isError } = useQuery({
@@ -82,7 +88,6 @@ export default function ProductDetailes() {
   const images = product
     ? [product.imageCover, ...(product.images ?? [])].filter(Boolean)
     : []
-
 
   if (isError) {
     return (
@@ -100,13 +105,16 @@ export default function ProductDetailes() {
     )
   }
 
-
+  // ── Buy Now ──
+  // Uses addToCart directly (NOT useAddToCart) because:
+  // 1. This page is protected — user is always logged in
+  // 2. We need to navigate AFTER adding, not let the hook handle it
   async function handleBuyNow() {
     setIsBuyingNow(true)
     try {
-      await addToCart(product._id)           // Step 1: add to cart
-      toast.success('Added to cart!')        // Step 2: confirm
-      navigate('/checkout')                  // Step 3: navigate
+      await addToCart(product._id)
+      toast.success('Added to cart!')
+      navigate('/checkout')
     } catch {
       toast.error('Failed to add to cart. Please try again.')
     } finally {
@@ -215,6 +223,7 @@ export default function ProductDetailes() {
               </div>
             </div>
 
+            {/* ── Action Buttons ── */}
             <div className={styles.actions}>
               <button
                 type="button"
@@ -227,6 +236,7 @@ export default function ProductDetailes() {
                   : <><i className="fa-solid fa-cart-plus" /> Add to Cart</>
                 }
               </button>
+
               <button
                 type="button"
                 className={styles.buyNowBtn}
@@ -238,20 +248,20 @@ export default function ProductDetailes() {
                   : <><i className="fa-solid fa-bolt" /> Buy Now</>
                 }
               </button>
-
-
-              <div className={styles.deliveryInfo}>
-                <div className={styles.deliveryItem}>
-                  <i className="fa-solid fa-truck-fast" />
-                  <span>Free delivery on orders over 200 EGP</span>
-                </div>
-                <div className={styles.deliveryItem}>
-                  <i className="fa-solid fa-rotate-left" />
-                  <span>Easy 30-day returns</span>
-                </div>
-              </div>
-
             </div>
+
+            {/* ✅ FIX: deliveryInfo moved OUTSIDE actions div — it's not a button */}
+            <div className={styles.deliveryInfo}>
+              <div className={styles.deliveryItem}>
+                <i className="fa-solid fa-truck-fast" />
+                <span>Free delivery on orders over 200 EGP</span>
+              </div>
+              <div className={styles.deliveryItem}>
+                <i className="fa-solid fa-rotate-left" />
+                <span>Easy 30-day returns</span>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

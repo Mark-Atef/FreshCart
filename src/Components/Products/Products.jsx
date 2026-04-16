@@ -1,15 +1,12 @@
 /** biome-ignore-all assist/source/organizeImports: intentional order */
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
-/** biome-ignore-all assist/source/organizeImports: intentional order */
 import { useContext, useMemo, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContext'
-import toast from 'react-hot-toast'
 import styles from './Products.module.css'
 import { useAddToCart } from '../../hooks/useAddToCart'
-
 
 // ── Fetch functions — OUTSIDE component ──
 function getAllProducts() {
@@ -56,18 +53,11 @@ function SkeletonCard() {
 }
 
 // ── Product Card ──
+//    onAddToCart is the useAddToCart hook function — it already handles:
+//    auth check, success toast, error toast, redirect to login
+//    DO NOT add another try/catch or toast wrapper — it causes double toasts
 function ProductCard({ product, onAddToCart, cartLoading }) {
   const navigate = useNavigate()
-
-  async function handleAddToCart(e) {
-    e.stopPropagation()
-    try {
-      await onAddToCart(product._id)
-      toast.success(`${product.title.split(' ').slice(0, 3).join(' ')} added!`)
-    } catch {
-      toast.error('Failed to add to cart. Try again.')
-    }
-  }
 
   return (
     <button
@@ -86,7 +76,12 @@ function ProductCard({ product, onAddToCart, cartLoading }) {
           <button
             type="button"
             className={styles.addToCartBtn}
-            onClick={() => handleAddToCart(product._id, product.title)}
+            onClick={(e) => {
+              // ✅ Stops click bubbling to the card button (which navigates)
+              e.stopPropagation()
+              // ✅ Let the hook handle everything — NO extra toast/catch needed
+              onAddToCart(product._id, product.title)
+            }}
             disabled={product.quantity === 0 || cartLoading}
           >
             {cartLoading
@@ -111,14 +106,13 @@ function ProductCard({ product, onAddToCart, cartLoading }) {
 // ── Main Products Page ──
 export default function Products() {
 
+  // ✅ cartLoading still from CartContext for the disabled/spinner state
   const { cartLoading } = useContext(CartContext)
-  const handleAddToCart = useAddToCart()
 
+  // ✅ useAddToCart hook — auth-aware, handles toasts, redirects if not logged in
+  const onAddToCart = useAddToCart()
 
-  // ✅ useSearchParams reads ?category= and ?brand= from the URL
   const [searchParams, setSearchParams] = useSearchParams()
-
-  // ── Read initial values from URL query params ──
   const [search, setSearch] = useState('')
   const selectedCategory = useMemo(
     () => searchParams.get('category') ?? 'all',
@@ -127,7 +121,6 @@ export default function Products() {
   const [sortBy, setSortBy] = useState('default')
   const [priceRange, setPriceRange] = useState('all')
 
-  // ── Fetch products ──
   const { data: productsData, isLoading, isError } = useQuery({
     queryKey: ['allProducts'],
     queryFn: getAllProducts,
@@ -135,7 +128,6 @@ export default function Products() {
     gcTime: 10 * 60 * 1000,
   })
 
-  // ── Fetch categories for filter dropdown ──
   const { data: categoriesData } = useQuery({
     queryKey: ['allCategories'],
     queryFn: getAllCategories,
@@ -146,7 +138,6 @@ export default function Products() {
   const allProducts = useMemo(() => productsData?.data?.data ?? [], [productsData])
   const allCategories = useMemo(() => categoriesData?.data?.data ?? [], [categoriesData])
 
-  // ✅ When category filter changes, sync it to the URL
   function handleCategoryChange(value) {
     const nextParams = new URLSearchParams(searchParams)
     if (value === 'all') {
@@ -157,8 +148,6 @@ export default function Products() {
     setSearchParams(nextParams)
   }
 
-
-  // ── Filter + sort with useMemo ──
   const filteredProducts = useMemo(() => {
     let result = [...allProducts]
 
@@ -187,7 +176,6 @@ export default function Products() {
     return result
   }, [allProducts, search, selectedCategory, sortBy, priceRange])
 
-  // ── Active category name for display ──
   const activeCategoryName = useMemo(() => {
     if (selectedCategory === 'all') return null
     return allCategories.find(c => c._id === selectedCategory)?.name ?? null
@@ -205,10 +193,8 @@ export default function Products() {
   return (
     <section className={styles.section}>
 
-      {/* ── Page Header ── */}
       <div className={styles.pageHeader}>
         <div>
-          {/* ✅ Show active category name as breadcrumb when coming from categories */}
           {activeCategoryName && (
             <div className={styles.breadcrumb}>
               <button type="button" className={styles.breadcrumbLink} onClick={handleReset}>
@@ -229,7 +215,6 @@ export default function Products() {
         </div>
       </div>
 
-      {/* ── Search + Filters Bar ── */}
       <div className={styles.filtersBar}>
 
         <div className={styles.searchWrapper}>
@@ -253,7 +238,6 @@ export default function Products() {
           )}
         </div>
 
-        {/* ✅ Category select — shows currently active category from URL */}
         <select
           className={styles.filterSelect}
           value={selectedCategory}
@@ -300,7 +284,6 @@ export default function Products() {
         )}
       </div>
 
-      {/* ── Active category pill ── */}
       {activeCategoryName && (
         <div className={styles.activePill}>
           <i className="fa-solid fa-layer-group" />
@@ -336,7 +319,7 @@ export default function Products() {
               <ProductCard
                 key={product._id}
                 product={product}
-                onAddToCart={handleAddToCart}
+                onAddToCart={onAddToCart}   // ✅ hook passed as prop
                 cartLoading={cartLoading}
               />
             ))

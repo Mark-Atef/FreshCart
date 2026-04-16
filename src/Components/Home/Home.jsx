@@ -17,8 +17,7 @@ import groceryBanner from '../../assets/images/grocery-banner.png'
 import groceryBanner2 from '../../assets/images/grocery-banner-2.jpeg'
 import { AuthenticationContext } from '../../Context/Authentication.jsx'
 import { CartContext } from '../../Context/CartContext.jsx'
-import { useAddToCart } from '../../hooks/useAddToCart'
-
+import { useAddToCart } from '../../hooks/useAddToCart.js'
 
 // ── Fetch functions — outside component ──
 function getFeaturedProducts() {
@@ -72,12 +71,8 @@ function StarRating({ rating }) {
   )
 }
 
-// ── Product Card ──
-//  addToCart and cartLoading received as PROPS
-function ProductCard({ product, cartLoading }) {
+function ProductCard({ product, onAddToCart, cartLoading }) {
   const navigate = useNavigate()
-  const handleAddToCart = useAddToCart()
-
 
   return (
     <button
@@ -91,7 +86,12 @@ function ProductCard({ product, cartLoading }) {
           <button
             type="button"
             className={styles.addToCartBtn}
-            onClick={() => handleAddToCart(product._id, product.title)}
+            onClick={(e) => {
+              // ✅ Stop the click from bubbling to the card (which would navigate)
+              e.stopPropagation()
+              // ✅ Let the hook handle: auth check + API call + toast + redirect if needed
+              onAddToCart(product._id, product.title)
+            }}
             disabled={product.quantity === 0 || cartLoading}
           >
             {cartLoading
@@ -133,9 +133,14 @@ function SectionHeader({ title, subtitle, linkTo, linkLabel }) {
 // ── Main Home Page ──
 export default function Home() {
 
-  // ] Both contexts imported and used correctly in the PARENT
   const { token } = useContext(AuthenticationContext)
-  const { addToCart, cartLoading } = useContext(CartContext)
+
+  // ✅ FIX 3: Remove addToCart from CartContext — use the hook instead
+  // cartLoading still comes from context for the disabled/spinner state
+  const { cartLoading } = useContext(CartContext)
+
+  // ✅ FIX 4: Use the auth-aware hook — works for both logged-in and guest users
+  const onAddToCart = useAddToCart()
 
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['featuredProducts'],
@@ -296,12 +301,11 @@ export default function Home() {
         <div className={styles.productsGrid}>
           {productsLoading
             ? Array.from({ length: 8 }, (_, i) => <ProductSkeleton key={`prod-sk-${i}`} />)
-            //  Pass addToCart and cartLoading as props
             : products.map(product => (
                 <ProductCard
                   key={product._id}
                   product={product}
-                  addToCart={addToCart}
+                  onAddToCart={onAddToCart}   // hook passed as prop
                   cartLoading={cartLoading}
                 />
               ))
