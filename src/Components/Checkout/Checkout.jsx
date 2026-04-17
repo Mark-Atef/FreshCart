@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import toast from 'react-hot-toast'
 import { CartContext } from '../../Context/CartContext'
+import axios from 'axios'
 import styles from './Checkout.module.css'
 
 // ── Step Bar ──
@@ -471,7 +472,7 @@ export default function Checkout() {
 
     onSubmit: async (_values, { setTouched }) => {
       if (step < 3) {
-        // ✅ Clear touched state before next step — prevents premature red borders
+        // Clear touched state before next step — prevents premature red borders
         setTouched({})
         setStep(s => s + 1)
         return
@@ -479,19 +480,29 @@ export default function Checkout() {
 
       setIsSubmitting(true)
       try {
-        // Simulate API call — replace with real order API in production
-        await new Promise(r => setTimeout(r, 1500))
+        const cartId = cartData?.data?._id
 
-        // ✅ Mark order as placed BEFORE calling clearCart
-        // This prevents the empty-cart check in loadCart from firing
+        await axios.post(
+          `https://ecommerce.routemisr.com/api/v1/orders/${cartId}`,
+          {
+            shippingAddress: {
+              details: formik.values.address,
+              phone: formik.values.phone,
+              city: formik.values.city,
+            }
+          },
+          {
+            headers: { token: localStorage.getItem('token') }
+          }
+        )
         orderPlaced.current = true
 
         await clearCart()
         toast.success('Order placed successfully!')
         navigate('/order-success', { replace: true })
-      } catch {
-        orderPlaced.current = false // reset on failure
-        toast.error('Failed to place order. Please try again.')
+      } catch (err) {
+        const message = err.response?.data?.message || 'Failed to place order. Please try again.'
+        toast.error(message)
       } finally {
         setIsSubmitting(false)
       }
