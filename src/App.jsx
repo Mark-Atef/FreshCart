@@ -19,6 +19,7 @@ import { CartContextProvider } from './Context/CartContext'
 import { Toaster } from "react-hot-toast";
 import Checkout from './Components/Checkout/Checkout'
 import OrderSuccess from './Components/OrderSuccess/OrderSuccess'
+import AllOrders from './Components/AllOrders/AllOrders.jsx'
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const myRouter = createBrowserRouter([
       { path: 'productDetailes/:id', element: <ProtectedRoute><ProductDetailes /></ProtectedRoute> },
       { path: 'checkout', element: <ProtectedRoute><Checkout /></ProtectedRoute> },
       { path: 'order-success', element: <ProtectedRoute><OrderSuccess /></ProtectedRoute> },
+      { path: 'all-orders', element: <ProtectedRoute><AllOrders /></ProtectedRoute> },
       { path: '*', element: <NotFound /> },
     ]
   },
